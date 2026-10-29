@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 
 
-from training.baselinecnn import GalaxyBaseline
+from networks.baselinecnn import GalaxyBaseline
 from datasets.galaxy10_dataset import Galaxy10Dataset
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
