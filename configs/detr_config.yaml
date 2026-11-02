@@ -1,0 +1,42 @@
+# GalaxyDETR on Galaxy10 DECaLS.
+# Override any value from the command line, e.g.
+#   python train_detr.py --config configs/detr_config.yaml training.epochs=20 model.backbone=custom
+
+seed: 42
+checkpoint: models/galaxy_detr.pth       # models/ holds saved weights (gitignored), like baseline.pth
+
+data:
+  h5_path: data/Galaxy10_DECals.h5        # data/ is gitignored; put the .h5 there
+  val_fraction: 0.20
+  num_workers: 2
+
+model:
+  backbone: mobilenetv4_conv_small   # any timm mobilenetv4_* name, or 'custom' for the from-scratch CNN
+  pretrained: true
+  in_ch: 3
+  d_model: 128
+  heads: 4
+  enc_layers: 3
+  dec_layers: 3
+  ffn: 512
+  num_queries: 10                    # one galaxy per Galaxy10 cutout; use ~30 for full sky fields
+  dropout: 0.1
+
+loss:
+  # Hungarian matching cost weights
+  match_class: 2.0
+  match_bbox: 5.0
+  match_giou: 2.0
+  # Loss weights
+  w_ce: 1.0
+  w_bbox: 5.0
+  w_giou: 2.0
+  eos_coef: 0.1                      # weight on the "no galaxy" class
+
+training:
+  epochs: 50
+  batch_size: 32
+  lr: 3.0e-4
+  lr_backbone: 1.0e-4
+  weight_decay: 1.0e-4
+  grad_clip: 0.1

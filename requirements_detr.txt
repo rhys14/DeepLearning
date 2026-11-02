@@ -1,0 +1,6 @@
+# GalaxyDETR dependencies, on top of the shared requirements.txt
+# pip install -r requirements_detr.txt
+-r requirements.txt
+timm
+scipy
+pyyaml
