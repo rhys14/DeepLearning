@@ -9,6 +9,7 @@ data:
   h5_path: data/Galaxy10_DECals.h5        # data/ is gitignored; put the .h5 there
   val_fraction: 0.20
   num_workers: 2
+  in_memory: true                         # load all images into RAM once (~3.5 GB); false = lazy .h5 reads (slow)
 
 model:
   backbone: mobilenetv4_conv_small   # any timm mobilenetv4_* name, or 'custom' for the from-scratch CNN
@@ -40,3 +41,4 @@ training:
   lr_backbone: 1.0e-4
   weight_decay: 1.0e-4
   grad_clip: 0.1
+  log_every: 50                      # print running loss every N batches (0 = only per epoch)

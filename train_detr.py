@@ -36,7 +36,8 @@ def main():
 
     os.makedirs(os.path.dirname(cfg['checkpoint']) or '.', exist_ok=True)
     train_model(model, criterion, optimizer, train_loader, val_loader, device,
-                cfg['training']['epochs'], cfg['checkpoint'], cfg['training']['grad_clip'])
+                cfg['training']['epochs'], cfg['checkpoint'], cfg['training']['grad_clip'],
+                cfg['training'].get('log_every', 50))
     evaluate_model(model, val_loader, device, cfg['checkpoint'], CLASS_NAMES)
 
 
