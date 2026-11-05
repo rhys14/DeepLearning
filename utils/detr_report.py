@@ -32,10 +32,19 @@ def _fmt(x):
 
 
 def _plot_losses(history, path):
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    from matplotlib.ticker import MaxNLocator
+    """Returns True if the plot was written. Never raises: a missing matplotlib or an empty
+    history only skips the plot, so the rest of the report is always written."""
+    if not history.get("train_loss"):
+        return False
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        from matplotlib.ticker import MaxNLocator
+    except ImportError:
+        print("matplotlib is not installed: skipping loss_curve.png (pip install matplotlib, then "
+              "rerun make_report_detr.py to add it).")
+        return False
     epochs = list(range(len(history["train_loss"])))
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.plot(epochs, history["train_loss"], label="Training loss")
@@ -50,6 +59,11 @@ def _plot_losses(history, path):
     fig.tight_layout()
     fig.savefig(path, dpi=150)
     plt.close(fig)
+    return True
+
+
+def _secs(x, fmt="{:.1f}"):
+    return "n/a" if x is None else fmt.format(x)
 
 
 def _split_section(title, note, metrics, class_names):
@@ -92,13 +106,14 @@ def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup, t
         w = csv.writer(f)
         w.writerow(["epoch", "train_loss", "val_loss", "epoch_time_s", "best_so_far"])
         best = float("inf")
-        for e, (tr, va, t) in enumerate(zip(history["train_loss"], history["val_loss"], history["epoch_time"])):
+        times = history.get("epoch_time") or [None] * len(history["train_loss"])
+        for e, (tr, va, t) in enumerate(zip(history["train_loss"], history["val_loss"], times)):
             is_best = va < best
             best = min(best, va)
-            w.writerow([e, f"{tr:.6f}", f"{va:.6f}", f"{t:.1f}", "*" if is_best else ""])
+            w.writerow([e, f"{tr:.6f}", f"{va:.6f}", "" if t is None else f"{t:.1f}", "*" if is_best else ""])
 
     # loss_curve.png
-    _plot_losses(history, os.path.join(run_dir, "loss_curve.png"))
+    plotted = _plot_losses(history, os.path.join(run_dir, "loss_curve.png"))
 
     # metrics.json
     summary = {
@@ -107,8 +122,8 @@ def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup, t
         "best_epoch": history["best_epoch"],
         "best_val_loss": history["best_val_loss"],
         "epochs_run": len(history["train_loss"]),
-        "avg_epoch_time_s": history["avg_epoch_time"],
-        "total_train_time_s": history["total_time"],
+        "avg_epoch_time_s": history.get("avg_epoch_time"),
+        "total_train_time_s": history.get("total_time"),
         "class_names": list(class_names),
         "validation": _split_json(metrics, class_names),
         "test": _split_json(test_metrics, class_names) if test_metrics else None,
@@ -130,13 +145,18 @@ def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup, t
     L.append(f"| Validation accuracy{' (picked the checkpoint)' if test_metrics else ''} | "
              f"{'' if test_metrics else '**'}{metrics['accuracy']:.4f}{'' if test_metrics else '**'} |")
     L.append(f"| Validation mean box GIoU (top query vs. pseudo-label box) | {metrics['mean_giou']:.4f} |")
-    L.append(f"| Best epoch | {history['best_epoch']} of {len(history['train_loss'])} (0-indexed) |")
+    n_ep = len(history["train_loss"])
+    L.append(f"| Best epoch | {history['best_epoch']}{f' of {n_ep}' if n_ep else ''} (0-indexed) |")
     L.append(f"| Best validation loss | {history['best_val_loss']:.5f} |")
-    L.append(f"| Average time per epoch | {history['avg_epoch_time']:.1f} s |")
-    L.append(f"| Total training time | {history['total_time'] / 60:.1f} min |")
+    L.append(f"| Average time per epoch | {_secs(history.get('avg_epoch_time'))} s |")
+    tt = history.get("total_time")
+    L.append(f"| Total training time | {_secs(None if tt is None else tt / 60)} min |")
     L.append(f"| Saved weights | `{setup['weights_path']}` |")
     L.append("")
-    L.append("![Loss curve](loss_curve.png)\n")
+    if plotted:
+        L.append("![Loss curve](loss_curve.png)\n")
+    if setup.get("note"):
+        L.append(f"> {setup['note']}\n")
     L.append("## Setup\n")
     L.append("| | |\n|---|---|")
     L.append(f"| Date | {setup['started']} |")
@@ -164,10 +184,13 @@ def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup, t
     L.append("## Per-epoch losses\n")
     L.append("| Epoch | Train loss | Val loss | Time (s) | |\n|---|---|---|---|---|")
     best = float("inf")
-    for e, (tr, va, tm) in enumerate(zip(history["train_loss"], history["val_loss"], history["epoch_time"])):
+    times = history.get("epoch_time") or [None] * len(history["train_loss"])
+    for e, (tr, va, tm) in enumerate(zip(history["train_loss"], history["val_loss"], times)):
         mark = "best so far" if va < best else ""
         best = min(best, va)
-        L.append(f"| {e} | {tr:.5f} | {va:.5f} | {tm:.0f} | {mark} |")
+        L.append(f"| {e} | {tr:.5f} | {va:.5f} | {_secs(tm, '{:.0f}')} | {mark} |")
+    if not history["train_loss"]:
+        L.append("| (per-epoch losses not available for this run) | | | | |")
     L.append("")
     L.append("Full config: [`config.yaml`](config.yaml). Machine-readable numbers: [`metrics.json`](metrics.json).\n")
     with open(os.path.join(run_dir, "report.md"), "w", encoding="utf-8") as f:

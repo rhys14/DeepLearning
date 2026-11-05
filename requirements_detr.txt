@@ -4,3 +4,4 @@
 timm
 scipy
 pyyaml
+matplotlib

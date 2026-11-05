@@ -7,6 +7,7 @@ Each run is named galaxy_detr_<YYYYmmdd_HHMMSS> and saves:
     models/<run_name>.pth          best weights + config + class names (load with Networks.galaxydetr.load_galaxydetr)
     models/galaxy_detr.pth         copy of the above, so evaluate_detr.py / predict_detr.py pick up the latest run
     results/<run_name>/report.md   results write-up (+ metrics.json, history.csv, loss_curve.png, config.yaml)
+    results/<run_name>/history.json  per-epoch losses, updated every epoch (used by make_report_detr.py)
 """
 import argparse
 import copy
@@ -40,6 +41,8 @@ def main():
     models_dir, results_dir = out.get('models_dir', 'models'), out.get('results_dir', 'results')
     os.makedirs(models_dir, exist_ok=True)
     weights_path = os.path.join(models_dir, f'{run_name}.pth')
+    run_dir = os.path.join(results_dir, run_name)
+    os.makedirs(run_dir, exist_ok=True)
     print('Run:', run_name)
 
     torch.manual_seed(cfg['seed'])
@@ -61,7 +64,7 @@ def main():
 
     history = train_model(model, criterion, optimizer, train_loader, val_loader, device,
                           cfg['training']['epochs'], save_best, cfg['training']['grad_clip'],
-                          cfg['training'].get('log_every', 50))
+                          cfg['training'].get('log_every', 50), os.path.join(run_dir, 'history.json'))
     metrics = evaluate_model(model, val_loader, device, weights_path, CLASS_NAMES, 'Validation')
     test_metrics = None
     if test_loader is not None:  # scored once, with the checkpoint validation picked
@@ -75,10 +78,13 @@ def main():
              'n_train': len(train_loader.dataset), 'n_val': len(val_loader.dataset),
              'n_test': len(test_loader.dataset) if test_loader is not None else 0,
              'weights_path': weights_path.replace(os.sep, '/')}
-    report = write_report(os.path.join(results_dir, run_name), run_name, saved_cfg, CLASS_NAMES,
-                          history, metrics, setup, test_metrics)
     print(f'Saved weights: {weights_path} (also copied to {cfg["checkpoint"]})')
-    print(f'Saved report:  {report}')
+    try:
+        report = write_report(run_dir, run_name, saved_cfg, CLASS_NAMES, history, metrics, setup, test_metrics)
+        print(f'Saved report:  {report}')
+    except Exception as e:  # the weights are already saved; the report can be rebuilt without retraining
+        print(f'Writing the report failed ({type(e).__name__}: {e}). Rebuild it with:\n'
+              f'  python make_report_detr.py --weights {weights_path}')
 
 
 if __name__ == '__main__':
