@@ -17,10 +17,12 @@ def build_optimizer(model, cfg):
 
 
 def train_model(model, criterion, optimizer, train_loader, val_loader, device,
-                num_epochs, checkpoint_path, grad_clip=0.1, log_every=50):
-    """Train, keep the checkpoint with the lowest validation loss. Returns (train_losses, val_losses)."""
+                num_epochs, save_fn, grad_clip=0.1, log_every=50):
+    """Train; call save_fn(model, epoch, val_loss) every time validation loss reaches a new best.
+    Returns a history dict: train_loss, val_loss, epoch_time (lists), best_epoch, best_val_loss,
+    avg_epoch_time, total_time."""
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, num_epochs)
-    training_losses, validation_losses = [], []
+    training_losses, validation_losses, epoch_times = [], [], []
     best_validation_loss, best_validation_epoch = float('inf'), -1
     training_start = time.time()
 
@@ -50,11 +52,15 @@ def train_model(model, criterion, optimizer, train_loader, val_loader, device,
         best_marker = ''
         if val_loss < best_validation_loss:
             best_validation_loss, best_validation_epoch = val_loss, epoch
-            torch.save(model.state_dict(), checkpoint_path)
+            save_fn(model, epoch, val_loss)
             best_marker = ' *'
+        epoch_times.append(time.time() - epoch_start)
         print(f'Epoch [{epoch}/{num_epochs}], Train Loss: {avg_loss:.5f}, Val Loss: {val_loss:.5f}{best_marker} '
-              f'({time.time() - epoch_start:.0f}s)', flush=True)
+              f'({epoch_times[-1]:.0f}s)', flush=True)
 
-    print(f'Average time per epoch: {(time.time() - training_start) / num_epochs:.2f}s')
+    total_time = time.time() - training_start
+    print(f'Average time per epoch: {total_time / num_epochs:.2f}s')
     print(f'Best validation loss: {best_validation_loss:.5f} (epoch {best_validation_epoch})')
-    return training_losses, validation_losses
+    return {'train_loss': training_losses, 'val_loss': validation_losses, 'epoch_time': epoch_times,
+            'best_epoch': best_validation_epoch, 'best_val_loss': best_validation_loss,
+            'avg_epoch_time': total_time / num_epochs, 'total_time': total_time}

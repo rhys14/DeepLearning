@@ -60,6 +60,21 @@ def build_model(cfg, num_classes):
                       backbone=m['backbone'], pretrained=m['pretrained'])
 
 
+def load_galaxydetr(path, device='cpu'):
+    """Rebuild a trained GalaxyDETR from a checkpoint saved by train_detr.py.
+    Returns (model in eval mode, class_names). No config file or ImageNet download needed."""
+    from utils.checkpoint import load_checkpoint
+    ckpt = load_checkpoint(path, device)
+    if ckpt['config'] is None:
+        raise ValueError(f'{path} is a bare state_dict from an older run; rebuild with build_model(cfg, ...) '
+                         'and load_state_dict instead.')
+    cfg = ckpt['config']
+    cfg['model']['pretrained'] = False  # the weights come from the checkpoint
+    model = build_model(cfg, len(ckpt['class_names']))
+    model.load_state_dict(ckpt['state_dict'])
+    return model.to(device).eval(), ckpt['class_names']
+
+
 @torch.no_grad()
 def postprocess(outputs, threshold=0.5):
     """Per-image list of dicts with scores, labels, boxes (cxcywh, normalized) above `threshold`."""

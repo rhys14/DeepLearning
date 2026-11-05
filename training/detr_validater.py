@@ -3,6 +3,7 @@ for a saved checkpoint."""
 import torch
 
 from utils.box_ops import cxcywh_to_xyxy, generalized_box_iou
+from utils.checkpoint import load_checkpoint
 from utils.device import targets_to_device
 from utils.detr_metrics import accuracy, confusion_matrix
 
@@ -22,7 +23,7 @@ def validation_loss(model, criterion, loader, device):
 def evaluate_model(model, val_loader, device, checkpoint_path, class_names):
     """Image-level accuracy: the class of the most confident non-'no galaxy' query,
     so the number is directly comparable to the baseline CNN / VGG classifiers."""
-    model.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    model.load_state_dict(load_checkpoint(checkpoint_path, device)["state_dict"])
     model.eval()
     preds, trues, ious = [], [], []
     for images, targets in val_loader:
@@ -45,4 +46,4 @@ def evaluate_model(model, val_loader, device, checkpoint_path, class_names):
     print(f"Mean GIoU of top box vs. pseudo-label box: {mean_giou:.4f}")
     print("Confusion matrix (rows = true, cols = predicted):", class_names)
     print(confusion)
-    return {"accuracy": acc, "mean_giou": mean_giou, "confusion": confusion}
+    return {"accuracy": acc, "mean_giou": mean_giou, "confusion": confusion.tolist()}

@@ -66,6 +66,14 @@ def galaxy_box(img, nsigma=3.0, pad=0.10, fallback=0.3):
     return [cx / W, cy / H, min(w / W, 1.0), min(h / H, 1.0)]
 
 
+def prepare_image(img):
+    """Preprocess ONE image the same way as training/validation, for forward passes on new data.
+    img: PIL image or (H, W, 3) uint8 array. Returns a (3, 224, 224) float tensor."""
+    if not isinstance(img, Image.Image):
+        img = Image.fromarray(np.asarray(img))
+    return to_tensor(geometry(img.convert("RGB")))
+
+
 def random_flips(img):
     """Random horizontal and vertical flip, each with p=0.5 (exact pixel moves, no interpolation)."""
     if torch.rand(1).item() < 0.5:

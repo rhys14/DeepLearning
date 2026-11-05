@@ -3,7 +3,10 @@
 #   python train_detr.py --config configs/detr_config.yaml training.epochs=20 model.backbone=custom
 
 seed: 42
-checkpoint: models/galaxy_detr.pth       # models/ holds saved weights (gitignored), like baseline.pth
+checkpoint: models/galaxy_detr.pth       # copy of the LATEST run's weights (used by evaluate_detr.py)
+output:
+  models_dir: models                     # each run also saves models/<run_name>.pth (gitignored, like baseline.pth)
+  results_dir: results                   # each run writes results/<run_name>/report.md, metrics.json, ...
 
 data:
   h5_path: data/Galaxy10_DECals.h5        # data/ is gitignored; put the .h5 there
