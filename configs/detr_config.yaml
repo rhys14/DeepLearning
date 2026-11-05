@@ -12,7 +12,8 @@ data:
   h5_path: data/Galaxy10_DECals.h5        # data/ is gitignored; put the .h5 there
   val_fraction: 0.20
   num_workers: 2
-  in_memory: true                         # load all images into RAM once (~3.5 GB); false = lazy .h5 reads (slow)
+  image_source: memmap                    # memmap (default) | ram (needs ~3.5 GB RAM) | h5 (slow lazy reads)
+  npy_path: null                          # memmap file; null = data/Galaxy10_DECals_images.npy (gitignored)
   augment_flips: true                     # random H/V flips on the TRAINING split only
 
 model:

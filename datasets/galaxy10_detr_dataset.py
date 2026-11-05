@@ -1,10 +1,15 @@
 """Galaxy10 DECaLS dataset for GalaxyDETR.
 
-Two ways to read the images (config `data.in_memory`):
-  * in_memory: true (default) -- load all images into RAM once (~3.5 GB, ~30-60 s), like
-    vgg_train_and_val.ipynb. Fast: the Galaxy10 .h5 is gzip-compressed in chunks of ~64 images,
-    so reading ONE image at random decompresses the whole chunk (~60 ms/image, ~8 min/epoch).
-  * in_memory: false -- lazy .h5 access like galaxy10_dataset.py (low RAM, but slow for the reason above).
+Three ways to read the images (config `data.image_source`):
+  * "memmap" (default) -- the first run converts the .h5 once into an uncompressed .npy file next to it
+    (~3.5 GB on disk, ~1 min, streamed in small blocks so it never needs 3.5 GB of RAM). Every process
+    then memory-maps that file: the OS pages images in from disk as they are read and can drop them
+    again under memory pressure, so RAM use stays small and nothing gets OOM-killed. After the first
+    epoch the file is usually in the OS cache, so it is as fast as RAM.
+  * "ram" -- load all images into RAM (~3.5 GB), like vgg_train_and_val.ipynb. Only if you have the memory.
+  * "h5" -- lazy .h5 access like galaxy10_dataset.py. Low RAM but slow: the Galaxy10 .h5 is
+    gzip-compressed in chunks of ~64 images, so reading ONE image at random decompresses the whole
+    chunk (~60 ms/image, ~8 min/epoch).
 Preprocessing and the stratified 80/20 split follow vgg_train_and_val.ipynb.
 
 Training-only augmentation (config `data.augment_flips`): random horizontal and vertical flips,
@@ -17,6 +22,8 @@ galaxy, so `galaxy_box` derives one box per image from the central light blob (p
 threshold at background median + 3*sigma (MAD estimate) -> connected components ->
 take the component containing / nearest the center -> pad its bounding box by 10%.
 """
+import os
+import shutil
 import time
 
 import h5py
@@ -96,38 +103,50 @@ def stratified_split(fp, val_fraction=0.20, seed=42):
 
 class Galaxy10DETRDataset(Dataset):
     """Returns (image, target): image (3, 224, 224) float32,
-    target = {"boxes": (1, 4) cxcywh normalized, "labels": (1,)}."""
-    def __init__(self, fp, indices=None, images=None, labels=None, train=False):
-        """images/labels: optional in-RAM arrays from load_into_memory(); otherwise the .h5 is read lazily.
-        train: apply random flips (training split only)."""
-        self.file_path = fp
+    target = {"boxes": (1, 4) cxcywh normalized, "labels": (1,)}.
+
+    Image source, in priority order: `images` (an in-RAM array), `npy_path` (memory-mapped lazily in
+    each worker), else the .h5 at `fp` (opened lazily in each worker). Open file handles and memmaps
+    are never pickled into DataLoader workers (see __getstate__), so workers never copy the images."""
+    def __init__(self, fp, indices=None, labels=None, npy_path=None, images=None, train=False):
+        self.file_path, self.npy_path = fp, npy_path
         self.train = train
-        self.file = None
-        self.images, self.labels = images, labels
-        if indices is None:
-            if labels is not None:
-                indices = np.arange(len(labels))
-            else:
-                with h5py.File(fp, "r") as f:
-                    indices = np.arange(len(f["images"]))
-        self.indices = indices
+        self.images = images
+        self.file = None   # lazily opened h5py.File
+        self.mm = None     # lazily opened np.memmap
+        if labels is None:
+            with h5py.File(fp, "r") as f:
+                labels = f["ans"][:].astype(np.int64)
+        self.labels = labels
+        self.indices = np.arange(len(labels)) if indices is None else indices
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["file"] = None
+        state["mm"] = None
+        return state
 
     def __len__(self):
         return len(self.indices)
 
+    def _raw_image(self, j):
+        if self.images is not None:
+            return self.images[j]
+        if self.npy_path is not None:
+            if self.mm is None:
+                self.mm = np.load(self.npy_path, mmap_mode="r")
+            return np.array(self.mm[j])  # copy one image out of the map
+        if self.file is None:
+            self.file = h5py.File(self.file_path, "r")
+        return self.file["images"][j]
+
     def __getitem__(self, idx):
         j = int(self.indices[idx])
-        if self.images is not None:
-            raw, label = self.images[j], self.labels[j]
-        else:
-            if self.file is None:
-                self.file = h5py.File(self.file_path, "r")
-            raw, label = self.file["images"][j], self.file["ans"][j]
-        img = geometry(Image.fromarray(raw).convert("RGB"))
+        img = geometry(Image.fromarray(self._raw_image(j)).convert("RGB"))
         if self.train:
             img = random_flips(img)
         target = {"boxes": torch.tensor([galaxy_box(img)], dtype=torch.float32),
-                  "labels": torch.tensor([int(label)])}
+                  "labels": torch.tensor([int(self.labels[j])])}
         return to_tensor(img), target
 
 
@@ -136,26 +155,85 @@ def collate(batch):
     return torch.stack([b[0] for b in batch]), [b[1] for b in batch]
 
 
+def default_npy_path(h5_path):
+    return os.path.splitext(h5_path)[0] + "_images.npy"
+
+
+def convert_h5_to_npy(h5_path, npy_path, block=512):
+    """One-time conversion of the compressed .h5 images to an uncompressed, memory-mappable .npy.
+    Streams `block` images at a time (~100 MB of RAM). Writes to a temp file and renames at the end,
+    so an interrupted conversion is never mistaken for a finished one."""
+    with h5py.File(h5_path, "r") as f:
+        src = f["images"]
+        n, shape = len(src), src.shape
+        need = int(np.prod(shape)) + (1 << 20)
+        out_dir = os.path.dirname(os.path.abspath(npy_path))
+        free = shutil.disk_usage(out_dir).free
+        if free < need:
+            raise RuntimeError(f"Converting needs {need / 1e9:.1f} GB free in {out_dir}, but only "
+                               f"{free / 1e9:.1f} GB is free. Set data.npy_path to a folder with more space "
+                               "(e.g. a scratch directory), or use data.image_source=h5.")
+        tmp = npy_path + ".partial"
+        print(f"Converting {h5_path} -> {npy_path} (one time, {need / 1e9:.1f} GB)...", flush=True)
+        t = time.time()
+        # Plain sequential writes (not a writable memmap), so written data never piles up in RAM.
+        with open(tmp, "wb") as out:
+            np.lib.format.write_array_header_1_0(
+                out, {"descr": np.lib.format.dtype_to_descr(np.dtype(np.uint8)),
+                      "fortran_order": False, "shape": tuple(shape)})
+            for start in range(0, n, block):
+                stop = min(start + block, n)
+                out.write(np.ascontiguousarray(src[start:stop], dtype=np.uint8).tobytes())
+                if (start // block) % 5 == 0 or stop == n:
+                    print(f"  {stop}/{n} images ({time.time() - t:.0f}s)", flush=True)
+    os.replace(tmp, npy_path)
+    print(f"Conversion done in {time.time() - t:.0f}s", flush=True)
+
+
+def ensure_npy(h5_path, npy_path=None):
+    """Returns the path of a valid .npy copy of the images, converting first if needed."""
+    npy_path = npy_path or default_npy_path(h5_path)
+    with h5py.File(h5_path, "r") as f:
+        expected = f["images"].shape
+    if os.path.exists(npy_path):
+        try:
+            if np.load(npy_path, mmap_mode="r").shape == expected:
+                print(f"Using memory-mapped images: {npy_path}", flush=True)
+                return npy_path
+        except ValueError:
+            pass
+        print(f"{npy_path} does not match {h5_path}; rebuilding it.", flush=True)
+    convert_h5_to_npy(h5_path, npy_path)
+    return npy_path
+
+
 def load_into_memory(fp):
-    """Read the whole dataset into RAM once (decompresses every chunk exactly once)."""
+    """Read all images into RAM once (~3.5 GB)."""
     t = time.time()
     with h5py.File(fp, "r") as f:
-        images = f["images"][:]                  # (17736, 256, 256, 3) uint8, ~3.5 GB
-        labels = f["ans"][:].astype(np.int64)
+        images = f["images"][:]
     print(f"Loaded {images.shape} into memory in {time.time() - t:.1f}s", flush=True)
-    return images, labels
+    return images
 
 
 def build_dataloaders(cfg):
     d = cfg["data"]
     train_idx, val_idx = stratified_split(d["h5_path"], d["val_fraction"], cfg["seed"])
-    images = labels = None
-    if d.get("in_memory", True):
-        images, labels = load_into_memory(d["h5_path"])
+    with h5py.File(d["h5_path"], "r") as f:
+        labels = f["ans"][:].astype(np.int64)
+
+    source = d.get("image_source", "memmap")
+    images = npy_path = None
+    if source == "memmap":
+        npy_path = ensure_npy(d["h5_path"], d.get("npy_path"))
+    elif source == "ram":
+        images = load_into_memory(d["h5_path"])
+    elif source != "h5":
+        raise ValueError(f"data.image_source must be memmap, ram or h5, not {source!r}")
+
     common = dict(batch_size=cfg["training"]["batch_size"], num_workers=d["num_workers"], collate_fn=collate,
                   persistent_workers=d["num_workers"] > 0)
     augment = d.get("augment_flips", True)
-    train_loader = DataLoader(Galaxy10DETRDataset(d["h5_path"], train_idx, images, labels, train=augment),
-                              shuffle=True, **common)
-    val_loader = DataLoader(Galaxy10DETRDataset(d["h5_path"], val_idx, images, labels), **common)
-    return train_loader, val_loader
+    train_ds = Galaxy10DETRDataset(d["h5_path"], train_idx, labels, npy_path, images, train=augment)
+    val_ds = Galaxy10DETRDataset(d["h5_path"], val_idx, labels, npy_path, images)
+    return DataLoader(train_ds, shuffle=True, **common), DataLoader(val_ds, **common)
