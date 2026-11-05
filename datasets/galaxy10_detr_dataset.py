@@ -10,7 +10,9 @@ Three ways to read the images (config `data.image_source`):
   * "h5" -- lazy .h5 access like galaxy10_dataset.py. Low RAM but slow: the Galaxy10 .h5 is
     gzip-compressed in chunks of ~64 images, so reading ONE image at random decompresses the whole
     chunk (~60 ms/image, ~8 min/epoch).
-Preprocessing and the stratified 80/20 split follow vgg_train_and_val.ipynb.
+Preprocessing follows vgg_train_and_val.ipynb. Split: stratified train / validation / test
+(config data.val_fraction, data.test_fraction; default 70/15/15). Validation picks the best
+checkpoint; the test set is only scored once, after training.
 
 Training-only augmentation (config `data.augment_flips`): random horizontal and vertical flips,
 each with probability 0.5. Galaxies have no preferred orientation, so a flipped galaxy is still
@@ -90,15 +92,25 @@ def random_flips(img):
     return img
 
 
-def stratified_split(fp, val_fraction=0.20, seed=42):
-    """Train/validation indices with the same class mix in both. Only the labels are read."""
+def stratified_split(fp, val_fraction=0.15, test_fraction=0.15, seed=42):
+    """Train / validation / test indices, each with the same class mix. Only the labels are read.
+
+    The test set is carved off FIRST, so it depends only on (test_fraction, seed): changing
+    val_fraction never moves images into or out of the test set. test_fraction=0 gives no test
+    set, and with val_fraction=0.20 reproduces the original 80/20 split exactly."""
     with h5py.File(fp, "r") as f:
         labels = f["ans"][:].astype(np.int64)
-    train_idx, val_idx = train_test_split(np.arange(len(labels)), test_size=val_fraction,
-                                          stratify=labels, random_state=seed)
-    for name, idx in [("train", train_idx), ("validation", val_idx)]:
-        print(name, idx.shape, "class counts:", np.bincount(labels[idx], minlength=len(CLASS_NAMES)))
-    return train_idx, val_idx
+    idx = np.arange(len(labels))
+    test_idx = np.array([], dtype=np.int64)
+    if test_fraction > 0:
+        idx, test_idx = train_test_split(idx, test_size=test_fraction, stratify=labels, random_state=seed)
+    # val_fraction is a share of the WHOLE dataset, so rescale it to the remaining pool
+    train_idx, val_idx = train_test_split(idx, test_size=val_fraction / (1 - test_fraction),
+                                          stratify=labels[idx], random_state=seed)
+    for name, ids in [("train", train_idx), ("validation", val_idx), ("test", test_idx)]:
+        if len(ids):
+            print(name, ids.shape, "class counts:", np.bincount(labels[ids], minlength=len(CLASS_NAMES)))
+    return train_idx, val_idx, test_idx
 
 
 class Galaxy10DETRDataset(Dataset):
@@ -217,8 +229,11 @@ def load_into_memory(fp):
 
 
 def build_dataloaders(cfg):
+    """Returns (train_loader, val_loader, test_loader); test_loader is None when data.test_fraction is 0.
+    Only the training split is augmented."""
     d = cfg["data"]
-    train_idx, val_idx = stratified_split(d["h5_path"], d["val_fraction"], cfg["seed"])
+    train_idx, val_idx, test_idx = stratified_split(d["h5_path"], d["val_fraction"],
+                                                    d.get("test_fraction", 0.0), cfg["seed"])
     with h5py.File(d["h5_path"], "r") as f:
         labels = f["ans"][:].astype(np.int64)
 
@@ -236,4 +251,7 @@ def build_dataloaders(cfg):
     augment = d.get("augment_flips", True)
     train_ds = Galaxy10DETRDataset(d["h5_path"], train_idx, labels, npy_path, images, train=augment)
     val_ds = Galaxy10DETRDataset(d["h5_path"], val_idx, labels, npy_path, images)
-    return DataLoader(train_ds, shuffle=True, **common), DataLoader(val_ds, **common)
+    test_loader = None
+    if len(test_idx):
+        test_loader = DataLoader(Galaxy10DETRDataset(d["h5_path"], test_idx, labels, npy_path, images), **common)
+    return DataLoader(train_ds, shuffle=True, **common), DataLoader(val_ds, **common), test_loader

@@ -44,7 +44,7 @@ def main():
 
     torch.manual_seed(cfg['seed'])
     device = get_device()
-    train_loader, val_loader = build_dataloaders(cfg)
+    train_loader, val_loader, test_loader = build_dataloaders(cfg)
 
     num_classes = len(CLASS_NAMES)
     model = build_model(cfg, num_classes).to(device)
@@ -62,7 +62,10 @@ def main():
     history = train_model(model, criterion, optimizer, train_loader, val_loader, device,
                           cfg['training']['epochs'], save_best, cfg['training']['grad_clip'],
                           cfg['training'].get('log_every', 50))
-    metrics = evaluate_model(model, val_loader, device, weights_path, CLASS_NAMES)
+    metrics = evaluate_model(model, val_loader, device, weights_path, CLASS_NAMES, 'Validation')
+    test_metrics = None
+    if test_loader is not None:  # scored once, with the checkpoint validation picked
+        test_metrics = evaluate_model(model, test_loader, device, weights_path, CLASS_NAMES, 'Test')
 
     os.makedirs(os.path.dirname(cfg['checkpoint']) or '.', exist_ok=True)
     shutil.copyfile(weights_path, cfg['checkpoint'])
@@ -70,9 +73,10 @@ def main():
     device_name = torch.cuda.get_device_name(device) if device.type == 'cuda' else device.type
     setup = {'started': f'{started:%Y-%m-%d %H:%M}', 'device': device_name, 'n_params': n_params,
              'n_train': len(train_loader.dataset), 'n_val': len(val_loader.dataset),
+             'n_test': len(test_loader.dataset) if test_loader is not None else 0,
              'weights_path': weights_path.replace(os.sep, '/')}
     report = write_report(os.path.join(results_dir, run_name), run_name, saved_cfg, CLASS_NAMES,
-                          history, metrics, setup)
+                          history, metrics, setup, test_metrics)
     print(f'Saved weights: {weights_path} (also copied to {cfg["checkpoint"]})')
     print(f'Saved report:  {report}')
 

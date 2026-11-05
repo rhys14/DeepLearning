@@ -20,13 +20,13 @@ def validation_loss(model, criterion, loader, device):
 
 
 @torch.no_grad()
-def evaluate_model(model, val_loader, device, checkpoint_path, class_names):
+def evaluate_model(model, loader, device, checkpoint_path, class_names, split_name="Validation"):
     """Image-level accuracy: the class of the most confident non-'no galaxy' query,
     so the number is directly comparable to the baseline CNN / VGG classifiers."""
     model.load_state_dict(load_checkpoint(checkpoint_path, device)["state_dict"])
     model.eval()
     preds, trues, ious = [], [], []
-    for images, targets in val_loader:
+    for images, targets in loader:
         out = model(images.to(device))
         prob = out["pred_logits"].softmax(-1)[..., :-1]       # (B, Q, C)
         score, cls = prob.max(-1)                              # (B, Q)
@@ -42,8 +42,9 @@ def evaluate_model(model, val_loader, device, checkpoint_path, class_names):
     acc = accuracy(preds, trues)
     mean_giou = torch.cat(ious).mean().item()
     confusion = confusion_matrix(preds, trues, len(class_names))
-    print(f"Validation accuracy: {acc:.4f}")
+    print(f"--- {split_name} set ({len(trues)} images) ---")
+    print(f"{split_name} accuracy: {acc:.4f}")
     print(f"Mean GIoU of top box vs. pseudo-label box: {mean_giou:.4f}")
     print("Confusion matrix (rows = true, cols = predicted):", class_names)
     print(confusion)
-    return {"accuracy": acc, "mean_giou": mean_giou, "confusion": confusion.tolist()}
+    return {"accuracy": acc, "mean_giou": mean_giou, "confusion": confusion.tolist(), "n_images": int(len(trues))}

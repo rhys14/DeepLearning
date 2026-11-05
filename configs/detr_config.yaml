@@ -10,7 +10,9 @@ output:
 
 data:
   h5_path: data/Galaxy10_DECals.h5        # data/ is gitignored; put the .h5 there
-  val_fraction: 0.20
+  val_fraction: 0.15                      # share of ALL images; picks the best checkpoint each epoch
+  test_fraction: 0.15                     # share of ALL images; held out, scored once after training
+                                          # (test_fraction: 0 + val_fraction: 0.20 = the original 80/20 split)
   num_workers: 2
   image_source: memmap                    # memmap (default) | ram (needs ~3.5 GB RAM) | h5 (slow lazy reads)
   npy_path: null                          # memmap file; null = data/Galaxy10_DECals_images.npy (gitignored)

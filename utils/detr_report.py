@@ -52,11 +52,36 @@ def _plot_losses(history, path):
     plt.close(fig)
 
 
-def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup):
-    """history: from train_model; metrics: from evaluate_model; setup: device, params, split sizes, paths."""
-    os.makedirs(run_dir, exist_ok=True)
+def _split_section(title, note, metrics, class_names):
+    """Markdown for one split: per-class precision/recall and the confusion matrix."""
     confusion = np.asarray(metrics["confusion"])
-    per_class = _per_class_rows(confusion, class_names)
+    L = [f"## {title}\n", f"{note}\n",
+         f"Accuracy **{metrics['accuracy']:.4f}**, mean box GIoU {metrics['mean_giou']:.4f}, "
+         f"{metrics.get('n_images', int(confusion.sum()))} images.\n",
+         "| Class | Images | Precision | Recall |\n|---|---|---|---|"]
+    for r in _per_class_rows(confusion, class_names):
+        L.append(f"| {r['class']} | {r['support']} | {_fmt(r['precision'])} | {_fmt(r['recall'])} |")
+    L.append("")
+    L.append("Confusion matrix (rows = true class, columns = predicted class):\n")
+    L.append("| true \\ pred | " + " | ".join(str(i) for i in range(len(class_names))) + " |")
+    L.append("|---" * (len(class_names) + 1) + "|")
+    for i, name in enumerate(class_names):
+        L.append(f"| {i} {name} | " + " | ".join(str(v) for v in confusion[i]) + " |")
+    L.append("")
+    return L
+
+
+def _split_json(metrics, class_names):
+    confusion = np.asarray(metrics["confusion"])
+    return {"accuracy": metrics["accuracy"], "mean_box_giou": metrics["mean_giou"],
+            "n_images": metrics.get("n_images", int(confusion.sum())),
+            "confusion_matrix": confusion.tolist(), "per_class": _per_class_rows(confusion, class_names)}
+
+
+def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup, test_metrics=None):
+    """history: from train_model; metrics / test_metrics: from evaluate_model on the validation / test
+    split (test_metrics is None when there is no test set); setup: device, params, split sizes, paths."""
+    os.makedirs(run_dir, exist_ok=True)
 
     # config.yaml
     with open(os.path.join(run_dir, "config.yaml"), "w") as f:
@@ -84,11 +109,9 @@ def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup):
         "epochs_run": len(history["train_loss"]),
         "avg_epoch_time_s": history["avg_epoch_time"],
         "total_train_time_s": history["total_time"],
-        "val_accuracy": metrics["accuracy"],
-        "mean_box_giou": metrics["mean_giou"],
         "class_names": list(class_names),
-        "confusion_matrix": confusion.tolist(),
-        "per_class": per_class,
+        "validation": _split_json(metrics, class_names),
+        "test": _split_json(test_metrics, class_names) if test_metrics else None,
         "train_loss": history["train_loss"],
         "val_loss": history["val_loss"],
     }
@@ -101,8 +124,12 @@ def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup):
     L.append(f"# GalaxyDETR training report: `{run_name}`\n")
     L.append("## Results\n")
     L.append("| | |\n|---|---|")
-    L.append(f"| Validation accuracy | **{metrics['accuracy']:.4f}** |")
-    L.append(f"| Mean box GIoU (top query vs. pseudo-label box) | {metrics['mean_giou']:.4f} |")
+    if test_metrics:
+        L.append(f"| **Test accuracy** (held out, scored once) | **{test_metrics['accuracy']:.4f}** |")
+        L.append(f"| Test mean box GIoU | {test_metrics['mean_giou']:.4f} |")
+    L.append(f"| Validation accuracy{' (picked the checkpoint)' if test_metrics else ''} | "
+             f"{'' if test_metrics else '**'}{metrics['accuracy']:.4f}{'' if test_metrics else '**'} |")
+    L.append(f"| Validation mean box GIoU (top query vs. pseudo-label box) | {metrics['mean_giou']:.4f} |")
     L.append(f"| Best epoch | {history['best_epoch']} of {len(history['train_loss'])} (0-indexed) |")
     L.append(f"| Best validation loss | {history['best_val_loss']:.5f} |")
     L.append(f"| Average time per epoch | {history['avg_epoch_time']:.1f} s |")
@@ -115,7 +142,8 @@ def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup):
     L.append(f"| Date | {setup['started']} |")
     L.append(f"| Device | {setup['device']} |")
     L.append(f"| Dataset | `{d['h5_path']}` |")
-    L.append(f"| Train / validation images | {setup['n_train']} / {setup['n_val']} (stratified, seed {cfg['seed']}) |")
+    L.append(f"| Train / validation / test images | {setup['n_train']} / {setup['n_val']} / {setup.get('n_test', 0)} "
+             f"(stratified, seed {cfg['seed']}) |")
     L.append(f"| Training flips | {'on' if d.get('augment_flips', True) else 'off'} |")
     L.append(f"| Backbone | {m['backbone']} ({'ImageNet-pretrained' if m['pretrained'] else 'from scratch'}) |")
     L.append(f"| Transformer | d_model {m['d_model']}, {m['heads']} heads, {m['enc_layers']} enc + "
@@ -124,18 +152,15 @@ def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup):
     L.append(f"| Epochs / batch size | {t['epochs']} / {t['batch_size']} |")
     L.append(f"| Learning rate (backbone / rest) | {t['lr_backbone']} / {t['lr']} |")
     L.append("")
-    L.append("## Per-class results (validation)\n")
-    L.append("| Class | Images | Precision | Recall |\n|---|---|---|---|")
-    for r in per_class:
-        L.append(f"| {r['class']} | {r['support']} | {_fmt(r['precision'])} | {_fmt(r['recall'])} |")
-    L.append("")
-    L.append("## Confusion matrix (rows = true class, columns = predicted class)\n")
-    idx = " | ".join(str(i) for i in range(len(class_names)))
-    L.append(f"| true \\ pred | {idx} |")
-    L.append("|---" * (len(class_names) + 1) + "|")
-    for i, name in enumerate(class_names):
-        L.append(f"| {i} {name} | " + " | ".join(str(v) for v in confusion[i]) + " |")
-    L.append("")
+    if test_metrics:
+        L += _split_section("Test set (held out)",
+                            "Never used for training or for choosing the checkpoint; scored once at the end. "
+                            "This is the number to report.", test_metrics, class_names)
+    L += _split_section("Validation set",
+                        "Used every epoch to pick the best checkpoint"
+                        + (", so its accuracy is slightly optimistic." if test_metrics else
+                           ". There is no separate test set in this run (data.test_fraction = 0), so this "
+                           "accuracy is slightly optimistic."), metrics, class_names)
     L.append("## Per-epoch losses\n")
     L.append("| Epoch | Train loss | Val loss | Time (s) | |\n|---|---|---|---|---|")
     best = float("inf")
