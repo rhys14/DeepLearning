@@ -10,6 +10,7 @@ data:
   val_fraction: 0.20
   num_workers: 2
   in_memory: true                         # load all images into RAM once (~3.5 GB); false = lazy .h5 reads (slow)
+  augment_flips: true                     # random H/V flips on the TRAINING split only
 
 model:
   backbone: mobilenetv4_conv_small   # any timm mobilenetv4_* name, or 'custom' for the from-scratch CNN

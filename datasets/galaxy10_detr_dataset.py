@@ -7,6 +7,11 @@ Two ways to read the images (config `data.in_memory`):
   * in_memory: false -- lazy .h5 access like galaxy10_dataset.py (low RAM, but slow for the reason above).
 Preprocessing and the stratified 80/20 split follow vgg_train_and_val.ipynb.
 
+Training-only augmentation (config `data.augment_flips`): random horizontal and vertical flips,
+each with probability 0.5. Galaxies have no preferred orientation, so a flipped galaxy is still
+the same class. The pseudo-box is computed AFTER the flip, so it always matches the image.
+The validation split is never augmented, so validation loss stays comparable between epochs.
+
 Galaxy10 has a class label per image but NO bounding boxes. Every cutout is centered on its
 galaxy, so `galaxy_box` derives one box per image from the central light blob (pseudo-label):
 threshold at background median + 3*sigma (MAD estimate) -> connected components ->
@@ -61,6 +66,15 @@ def galaxy_box(img, nsigma=3.0, pad=0.10, fallback=0.3):
     return [cx / W, cy / H, min(w / W, 1.0), min(h / H, 1.0)]
 
 
+def random_flips(img):
+    """Random horizontal and vertical flip, each with p=0.5 (exact pixel moves, no interpolation)."""
+    if torch.rand(1).item() < 0.5:
+        img = img.transpose(Image.FLIP_LEFT_RIGHT)
+    if torch.rand(1).item() < 0.5:
+        img = img.transpose(Image.FLIP_TOP_BOTTOM)
+    return img
+
+
 def stratified_split(fp, val_fraction=0.20, seed=42):
     """Train/validation indices with the same class mix in both. Only the labels are read."""
     with h5py.File(fp, "r") as f:
@@ -75,9 +89,11 @@ def stratified_split(fp, val_fraction=0.20, seed=42):
 class Galaxy10DETRDataset(Dataset):
     """Returns (image, target): image (3, 224, 224) float32,
     target = {"boxes": (1, 4) cxcywh normalized, "labels": (1,)}."""
-    def __init__(self, fp, indices=None, images=None, labels=None):
-        """images/labels: optional in-RAM arrays from load_into_memory(); otherwise the .h5 is read lazily."""
+    def __init__(self, fp, indices=None, images=None, labels=None, train=False):
+        """images/labels: optional in-RAM arrays from load_into_memory(); otherwise the .h5 is read lazily.
+        train: apply random flips (training split only)."""
         self.file_path = fp
+        self.train = train
         self.file = None
         self.images, self.labels = images, labels
         if indices is None:
@@ -100,6 +116,8 @@ class Galaxy10DETRDataset(Dataset):
                 self.file = h5py.File(self.file_path, "r")
             raw, label = self.file["images"][j], self.file["ans"][j]
         img = geometry(Image.fromarray(raw).convert("RGB"))
+        if self.train:
+            img = random_flips(img)
         target = {"boxes": torch.tensor([galaxy_box(img)], dtype=torch.float32),
                   "labels": torch.tensor([int(label)])}
         return to_tensor(img), target
@@ -128,6 +146,8 @@ def build_dataloaders(cfg):
         images, labels = load_into_memory(d["h5_path"])
     common = dict(batch_size=cfg["training"]["batch_size"], num_workers=d["num_workers"], collate_fn=collate,
                   persistent_workers=d["num_workers"] > 0)
-    train_loader = DataLoader(Galaxy10DETRDataset(d["h5_path"], train_idx, images, labels), shuffle=True, **common)
+    augment = d.get("augment_flips", True)
+    train_loader = DataLoader(Galaxy10DETRDataset(d["h5_path"], train_idx, images, labels, train=augment),
+                              shuffle=True, **common)
     val_loader = DataLoader(Galaxy10DETRDataset(d["h5_path"], val_idx, images, labels), **common)
     return train_loader, val_loader
