@@ -165,6 +165,11 @@ def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup, t
     L.append(f"| Train / validation / test images | {setup['n_train']} / {setup['n_val']} / {setup.get('n_test', 0)} "
              f"(stratified, seed {cfg['seed']}) |")
     L.append(f"| Training flips | {'on' if d.get('augment_flips', True) else 'off'} |")
+    if d.get("sampler", "weighted") == "weighted":
+        L.append(f"| Batch sampling (training) | weighted random sampler, power {d.get('sampler_power', 1.0)} "
+                 f"(class-balanced; validation/test keep the natural mix) |")
+    else:
+        L.append("| Batch sampling (training) | plain shuffle (natural class mix) |")
     L.append(f"| Backbone | {m['backbone']} ({'ImageNet-pretrained' if m['pretrained'] else 'from scratch'}) |")
     L.append(f"| Transformer | d_model {m['d_model']}, {m['heads']} heads, {m['enc_layers']} enc + "
              f"{m['dec_layers']} dec layers, FFN {m['ffn']}, {m['num_queries']} queries |")

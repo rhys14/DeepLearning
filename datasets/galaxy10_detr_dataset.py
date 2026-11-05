@@ -35,7 +35,7 @@ import torchvision
 from PIL import Image
 from scipy import ndimage
 from sklearn.model_selection import train_test_split
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
 
 CLASS_NAMES = ["disturbed", "merging", "round_smooth", "in_between_round_smooth", "cigar_smooth",
                "barred_spiral", "unbarred_tight_spiral", "unbarred_loose_spiral",
@@ -228,9 +228,33 @@ def load_into_memory(fp):
     return images
 
 
+def make_weighted_sampler(labels, power=1.0, seed=42):
+    """WeightedRandomSampler over the TRAINING split that rebalances classes.
+
+    Each image gets weight 1 / count(its class) ** power:
+      power = 1.0 -> every class is drawn equally often (~10% each for Galaxy10)
+      power = 0.5 -> halfway: rare classes boosted, but less repetition of the same few images
+      power = 0   -> natural class mix (same as plain shuffling, but drawn with replacement)
+    Draws len(labels) images per epoch WITH replacement, so rare-class images repeat within an
+    epoch and some common-class images are skipped that epoch (they come back in later epochs).
+    """
+    counts = np.bincount(labels, minlength=len(CLASS_NAMES)).astype(np.float64)
+    class_w = np.where(counts > 0, 1.0 / np.maximum(counts, 1) ** power, 0.0)
+    weights = torch.as_tensor(class_w[labels], dtype=torch.double)
+    gen = torch.Generator().manual_seed(seed)
+    sampler = WeightedRandomSampler(weights, num_samples=len(labels), replacement=True, generator=gen)
+    share = class_w * counts / (class_w * counts).sum()
+    print("Weighted sampler (power %.2f): expected share of each training epoch per class:" % power)
+    for name, n, p in zip(CLASS_NAMES, counts.astype(int), share):
+        print(f"  {name:<24} {n:>6} images  natural {n / counts.sum():6.1%} -> sampled {p:6.1%}"
+              f"  (each image ~{p * len(labels) / max(n, 1):.1f}x per epoch)")
+    return sampler
+
+
 def build_dataloaders(cfg):
     """Returns (train_loader, val_loader, test_loader); test_loader is None when data.test_fraction is 0.
-    Only the training split is augmented."""
+    Only the training split is augmented and (with data.sampler: weighted) class-rebalanced;
+    validation and test always keep the natural class mix."""
     d = cfg["data"]
     train_idx, val_idx, test_idx = stratified_split(d["h5_path"], d["val_fraction"],
                                                     d.get("test_fraction", 0.0), cfg["seed"])
@@ -254,4 +278,9 @@ def build_dataloaders(cfg):
     test_loader = None
     if len(test_idx):
         test_loader = DataLoader(Galaxy10DETRDataset(d["h5_path"], test_idx, labels, npy_path, images), **common)
-    return DataLoader(train_ds, shuffle=True, **common), DataLoader(val_ds, **common), test_loader
+    if d.get("sampler", "weighted") == "weighted":
+        sampler = make_weighted_sampler(labels[train_idx], d.get("sampler_power", 1.0), cfg["seed"])
+        train_loader = DataLoader(train_ds, sampler=sampler, **common)  # sampler replaces shuffle=True
+    else:
+        train_loader = DataLoader(train_ds, shuffle=True, **common)
+    return train_loader, DataLoader(val_ds, **common), test_loader
