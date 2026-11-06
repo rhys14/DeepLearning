@@ -1,0 +1,40 @@
+seed: 42
+checkpoint: models/galaxy_detr.pth
+output:
+  models_dir: models
+  results_dir: results
+data:
+  h5_path: data/Galaxy10_DECals.h5
+  val_fraction: 0.15
+  test_fraction: 0.15
+  num_workers: 2
+  image_source: memmap
+  npy_path: null
+  augment_flips: true
+model:
+  backbone: mobilenetv4_conv_small
+  pretrained: false
+  in_ch: 3
+  d_model: 128
+  heads: 4
+  enc_layers: 3
+  dec_layers: 3
+  ffn: 512
+  num_queries: 10
+  dropout: 0.1
+loss:
+  match_class: 2.0
+  match_bbox: 5.0
+  match_giou: 2.0
+  w_ce: 1.0
+  w_bbox: 5.0
+  w_giou: 2.0
+  eos_coef: 0.1
+training:
+  epochs: 50
+  batch_size: 32
+  lr: 0.0003
+  lr_backbone: 0.0001
+  weight_decay: 0.0001
+  grad_clip: 0.1
+  log_every: 50

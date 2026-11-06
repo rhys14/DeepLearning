@@ -18,7 +18,7 @@ optimizer = torch.optim.Adam(
 
 epochs = 20
 
-dataset = Galaxy10Dataset('C:\\Users\\phelpsrw\\OneDrive - Rose-Hulman Institute of Technology\\Desktop\\DeepLearning\\DeepLearning\\data\\Galaxy10_DECals.h5')
+dataset = Galaxy10Dataset('data/Galaxy10_DECals.h5')
 
 #80/20 split
 train_size = int(0.8 * len(dataset))
@@ -35,7 +35,7 @@ train_loader = DataLoader(
     train_dataset,
     batch_size=64,
     shuffle=True,
-    num_workers=0
+    num_workers=2
 )
 
 
@@ -86,7 +86,7 @@ for epoch in range(epochs):
         f"Accuracy: {epoch_accuracy:.2%}"
     )
 
-    torch.save(model.state_dict(), "C:\\Users\\phelpsrw\\OneDrive - Rose-Hulman Institute of Technology\\Desktop\\DeepLearning\\DeepLearning\\models\\baseline.pth")
+    torch.save(model.state_dict(), "/home/phelpsrw/19/DeepLearning/models/cnn_baseline.pth")
     print("Model saved successfully!")  
     
         

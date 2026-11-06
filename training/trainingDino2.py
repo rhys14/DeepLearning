@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 from pathlib import Path
 
-from networks.galaxyDinoV2 import GalaxyDINOv2
+from Networks.galaxyDinoV2 import GalaxyDINOv2
 from datasets.galaxy10_dataset import Galaxy10Dataset
 
 

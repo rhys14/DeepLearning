@@ -2,6 +2,7 @@ h5py
 
 # AI, Machine Learning & Data Science Baseline
 torchvision
+transformers
 pandas
 numpy
 scikit-learn

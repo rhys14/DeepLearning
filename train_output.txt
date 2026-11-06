@@ -1,0 +1,430 @@
+  Epoch [0/50] Batch [50/388] Loss: 10.1361 (ce 1.789 l1 0.114 giou 0.230)  0.20s/batch
+  Epoch [0/50] Batch [100/388] Loss: 8.9543 (ce 1.647 l1 0.103 giou 0.239)  0.19s/batch
+  Epoch [0/50] Batch [150/388] Loss: 8.4115 (ce 1.608 l1 0.077 giou 0.166)  0.20s/batch
+  Epoch [0/50] Batch [200/388] Loss: 8.0016 (ce 1.519 l1 0.081 giou 0.200)  0.21s/batch
+  Epoch [0/50] Batch [250/388] Loss: 7.7228 (ce 1.463 l1 0.078 giou 0.181)  0.21s/batch
+  Epoch [0/50] Batch [300/388] Loss: 7.4657 (ce 1.067 l1 0.084 giou 0.195)  0.20s/batch
+  Epoch [0/50] Batch [350/388] Loss: 7.2151 (ce 1.144 l1 0.084 giou 0.194)  0.20s/batch
+Epoch [0/50], Train Loss: 7.07317, Val Loss: 5.58524 * (89s)
+  Epoch [1/50] Batch [50/388] Loss: 5.5125 (ce 0.973 l1 0.070 giou 0.182)  0.17s/batch
+  Epoch [1/50] Batch [100/388] Loss: 5.3894 (ce 0.872 l1 0.080 giou 0.211)  0.16s/batch
+  Epoch [1/50] Batch [150/388] Loss: 5.2683 (ce 0.847 l1 0.097 giou 0.216)  0.16s/batch
+  Epoch [1/50] Batch [200/388] Loss: 5.2048 (ce 0.678 l1 0.065 giou 0.142)  0.16s/batch
+  Epoch [1/50] Batch [250/388] Loss: 5.0969 (ce 0.809 l1 0.089 giou 0.209)  0.16s/batch
+  Epoch [1/50] Batch [300/388] Loss: 5.0032 (ce 0.683 l1 0.074 giou 0.159)  0.16s/batch
+  Epoch [1/50] Batch [350/388] Loss: 4.9366 (ce 0.510 l1 0.074 giou 0.194)  0.16s/batch
+Epoch [1/50], Train Loss: 4.88858, Val Loss: 4.36751 * (72s)
+  Epoch [2/50] Batch [50/388] Loss: 4.3438 (ce 0.663 l1 0.086 giou 0.181)  0.16s/batch
+  Epoch [2/50] Batch [100/388] Loss: 4.3331 (ce 0.553 l1 0.070 giou 0.164)  0.16s/batch
+  Epoch [2/50] Batch [150/388] Loss: 4.2693 (ce 0.487 l1 0.063 giou 0.149)  0.16s/batch
+  Epoch [2/50] Batch [200/388] Loss: 4.2581 (ce 0.503 l1 0.082 giou 0.211)  0.16s/batch
+  Epoch [2/50] Batch [250/388] Loss: 4.2166 (ce 0.318 l1 0.083 giou 0.189)  0.16s/batch
+  Epoch [2/50] Batch [300/388] Loss: 4.1760 (ce 0.714 l1 0.096 giou 0.218)  0.16s/batch
+  Epoch [2/50] Batch [350/388] Loss: 4.1734 (ce 0.416 l1 0.090 giou 0.191)  0.16s/batch
+Epoch [2/50], Train Loss: 4.14881, Val Loss: 4.51118 (72s)
+  Epoch [3/50] Batch [50/388] Loss: 3.9383 (ce 0.677 l1 0.078 giou 0.187)  0.16s/batch
+  Epoch [3/50] Batch [100/388] Loss: 3.8946 (ce 0.511 l1 0.092 giou 0.226)  0.16s/batch
+  Epoch [3/50] Batch [150/388] Loss: 3.9021 (ce 0.393 l1 0.093 giou 0.205)  0.16s/batch
+  Epoch [3/50] Batch [200/388] Loss: 3.8639 (ce 0.722 l1 0.077 giou 0.164)  0.16s/batch
+  Epoch [3/50] Batch [250/388] Loss: 3.8207 (ce 0.529 l1 0.085 giou 0.182)  0.16s/batch
+  Epoch [3/50] Batch [300/388] Loss: 3.8001 (ce 0.777 l1 0.078 giou 0.175)  0.16s/batch
+  Epoch [3/50] Batch [350/388] Loss: 3.7687 (ce 0.396 l1 0.087 giou 0.171)  0.16s/batch
+Epoch [3/50], Train Loss: 3.74185, Val Loss: 3.39504 * (72s)
+  Epoch [4/50] Batch [50/388] Loss: 3.4862 (ce 0.494 l1 0.073 giou 0.173)  0.16s/batch
+  Epoch [4/50] Batch [100/388] Loss: 3.4476 (ce 0.401 l1 0.095 giou 0.193)  0.16s/batch
+  Epoch [4/50] Batch [150/388] Loss: 3.4206 (ce 0.350 l1 0.089 giou 0.190)  0.16s/batch
+  Epoch [4/50] Batch [200/388] Loss: 3.4497 (ce 0.762 l1 0.054 giou 0.150)  0.16s/batch
+  Epoch [4/50] Batch [250/388] Loss: 3.4297 (ce 0.411 l1 0.075 giou 0.186)  0.16s/batch
+  Epoch [4/50] Batch [300/388] Loss: 3.4194 (ce 0.257 l1 0.126 giou 0.266)  0.16s/batch
+  Epoch [4/50] Batch [350/388] Loss: 3.4190 (ce 0.391 l1 0.054 giou 0.157)  0.16s/batch
+Epoch [4/50], Train Loss: 3.41385, Val Loss: 3.30674 * (72s)
+  Epoch [5/50] Batch [50/388] Loss: 3.2557 (ce 0.413 l1 0.088 giou 0.164)  0.16s/batch
+  Epoch [5/50] Batch [100/388] Loss: 3.2668 (ce 0.319 l1 0.091 giou 0.197)  0.16s/batch
+  Epoch [5/50] Batch [150/388] Loss: 3.2746 (ce 0.274 l1 0.072 giou 0.167)  0.16s/batch
+  Epoch [5/50] Batch [200/388] Loss: 3.2668 (ce 0.392 l1 0.071 giou 0.175)  0.16s/batch
+  Epoch [5/50] Batch [250/388] Loss: 3.2733 (ce 0.307 l1 0.050 giou 0.124)  0.16s/batch
+  Epoch [5/50] Batch [300/388] Loss: 3.2490 (ce 0.498 l1 0.052 giou 0.132)  0.16s/batch
+  Epoch [5/50] Batch [350/388] Loss: 3.2320 (ce 0.373 l1 0.063 giou 0.158)  0.16s/batch
+Epoch [5/50], Train Loss: 3.22579, Val Loss: 3.06934 * (72s)
+  Epoch [6/50] Batch [50/388] Loss: 3.0178 (ce 0.169 l1 0.072 giou 0.157)  0.16s/batch
+  Epoch [6/50] Batch [100/388] Loss: 2.9777 (ce 0.314 l1 0.054 giou 0.142)  0.16s/batch
+  Epoch [6/50] Batch [150/388] Loss: 3.0357 (ce 0.222 l1 0.067 giou 0.176)  0.16s/batch
+  Epoch [6/50] Batch [200/388] Loss: 3.0372 (ce 0.204 l1 0.064 giou 0.142)  0.16s/batch
+  Epoch [6/50] Batch [250/388] Loss: 3.0570 (ce 0.315 l1 0.057 giou 0.143)  0.16s/batch
+  Epoch [6/50] Batch [300/388] Loss: 3.0728 (ce 0.298 l1 0.066 giou 0.172)  0.16s/batch
+  Epoch [6/50] Batch [350/388] Loss: 3.0785 (ce 0.186 l1 0.058 giou 0.144)  0.16s/batch
+Epoch [6/50], Train Loss: 3.07485, Val Loss: 3.05391 * (72s)
+  Epoch [7/50] Batch [50/388] Loss: 2.9604 (ce 0.328 l1 0.071 giou 0.152)  0.16s/batch
+  Epoch [7/50] Batch [100/388] Loss: 3.0059 (ce 0.282 l1 0.057 giou 0.140)  0.16s/batch
+  Epoch [7/50] Batch [150/388] Loss: 2.9959 (ce 0.211 l1 0.069 giou 0.149)  0.16s/batch
+  Epoch [7/50] Batch [200/388] Loss: 3.0334 (ce 0.450 l1 0.053 giou 0.133)  0.16s/batch
+  Epoch [7/50] Batch [250/388] Loss: 3.0253 (ce 0.463 l1 0.075 giou 0.163)  0.16s/batch
+  Epoch [7/50] Batch [300/388] Loss: 2.9895 (ce 0.232 l1 0.064 giou 0.155)  0.16s/batch
+  Epoch [7/50] Batch [350/388] Loss: 2.9955 (ce 0.352 l1 0.090 giou 0.187)  0.16s/batch
+Epoch [7/50], Train Loss: 3.00383, Val Loss: 2.78690 * (72s)
+  Epoch [8/50] Batch [50/388] Loss: 2.8288 (ce 0.424 l1 0.052 giou 0.147)  0.16s/batch
+  Epoch [8/50] Batch [100/388] Loss: 2.8122 (ce 0.353 l1 0.067 giou 0.153)  0.16s/batch
+  Epoch [8/50] Batch [150/388] Loss: 2.8354 (ce 0.227 l1 0.065 giou 0.147)  0.16s/batch
+  Epoch [8/50] Batch [200/388] Loss: 2.8286 (ce 0.337 l1 0.056 giou 0.132)  0.16s/batch
+  Epoch [8/50] Batch [250/388] Loss: 2.8233 (ce 0.329 l1 0.063 giou 0.153)  0.16s/batch
+  Epoch [8/50] Batch [300/388] Loss: 2.8234 (ce 0.301 l1 0.055 giou 0.137)  0.16s/batch
+  Epoch [8/50] Batch [350/388] Loss: 2.8254 (ce 0.465 l1 0.058 giou 0.125)  0.16s/batch
+Epoch [8/50], Train Loss: 2.82952, Val Loss: 2.79360 (72s)
+  Epoch [9/50] Batch [50/388] Loss: 2.6301 (ce 0.191 l1 0.050 giou 0.134)  0.16s/batch
+  Epoch [9/50] Batch [100/388] Loss: 2.6897 (ce 0.382 l1 0.049 giou 0.140)  0.16s/batch
+  Epoch [9/50] Batch [150/388] Loss: 2.7065 (ce 0.124 l1 0.073 giou 0.146)  0.16s/batch
+  Epoch [9/50] Batch [200/388] Loss: 2.7267 (ce 0.197 l1 0.062 giou 0.160)  0.16s/batch
+  Epoch [9/50] Batch [250/388] Loss: 2.7104 (ce 0.198 l1 0.055 giou 0.128)  0.16s/batch
+  Epoch [9/50] Batch [300/388] Loss: 2.7010 (ce 0.291 l1 0.060 giou 0.158)  0.16s/batch
+  Epoch [9/50] Batch [350/388] Loss: 2.7012 (ce 0.173 l1 0.050 giou 0.119)  0.16s/batch
+Epoch [9/50], Train Loss: 2.69469, Val Loss: 2.58862 * (72s)
+  Epoch [10/50] Batch [50/388] Loss: 2.6537 (ce 0.256 l1 0.050 giou 0.126)  0.17s/batch
+  Epoch [10/50] Batch [100/388] Loss: 2.6481 (ce 0.207 l1 0.079 giou 0.173)  0.16s/batch
+  Epoch [10/50] Batch [150/388] Loss: 2.6307 (ce 0.442 l1 0.053 giou 0.135)  0.16s/batch
+  Epoch [10/50] Batch [200/388] Loss: 2.6365 (ce 0.183 l1 0.069 giou 0.159)  0.16s/batch
+  Epoch [10/50] Batch [250/388] Loss: 2.6625 (ce 0.240 l1 0.058 giou 0.138)  0.16s/batch
+  Epoch [10/50] Batch [300/388] Loss: 2.6463 (ce 0.337 l1 0.072 giou 0.140)  0.16s/batch
+  Epoch [10/50] Batch [350/388] Loss: 2.6319 (ce 0.206 l1 0.056 giou 0.128)  0.16s/batch
+Epoch [10/50], Train Loss: 2.63322, Val Loss: 2.50394 * (72s)
+  Epoch [11/50] Batch [50/388] Loss: 2.5499 (ce 0.250 l1 0.073 giou 0.159)  0.16s/batch
+  Epoch [11/50] Batch [100/388] Loss: 2.5638 (ce 0.319 l1 0.069 giou 0.139)  0.16s/batch
+  Epoch [11/50] Batch [150/388] Loss: 2.5374 (ce 0.299 l1 0.053 giou 0.128)  0.16s/batch
+  Epoch [11/50] Batch [200/388] Loss: 2.5499 (ce 0.333 l1 0.058 giou 0.138)  0.16s/batch
+  Epoch [11/50] Batch [250/388] Loss: 2.5455 (ce 0.400 l1 0.070 giou 0.151)  0.16s/batch
+  Epoch [11/50] Batch [300/388] Loss: 2.5423 (ce 0.255 l1 0.042 giou 0.105)  0.16s/batch
+  Epoch [11/50] Batch [350/388] Loss: 2.5201 (ce 0.384 l1 0.047 giou 0.106)  0.16s/batch
+Epoch [11/50], Train Loss: 2.51685, Val Loss: 2.53857 (72s)
+  Epoch [12/50] Batch [50/388] Loss: 2.3441 (ce 0.226 l1 0.039 giou 0.094)  0.16s/batch
+  Epoch [12/50] Batch [100/388] Loss: 2.4339 (ce 0.343 l1 0.051 giou 0.111)  0.16s/batch
+  Epoch [12/50] Batch [150/388] Loss: 2.4421 (ce 0.319 l1 0.047 giou 0.137)  0.16s/batch
+  Epoch [12/50] Batch [200/388] Loss: 2.4284 (ce 0.511 l1 0.051 giou 0.116)  0.16s/batch
+  Epoch [12/50] Batch [250/388] Loss: 2.4213 (ce 0.262 l1 0.055 giou 0.148)  0.16s/batch
+  Epoch [12/50] Batch [300/388] Loss: 2.4272 (ce 0.412 l1 0.058 giou 0.122)  0.16s/batch
+  Epoch [12/50] Batch [350/388] Loss: 2.4270 (ce 0.183 l1 0.054 giou 0.128)  0.16s/batch
+Epoch [12/50], Train Loss: 2.42138, Val Loss: 2.39522 * (72s)
+  Epoch [13/50] Batch [50/388] Loss: 2.3201 (ce 0.246 l1 0.052 giou 0.113)  0.17s/batch
+  Epoch [13/50] Batch [100/388] Loss: 2.3368 (ce 0.402 l1 0.050 giou 0.119)  0.16s/batch
+  Epoch [13/50] Batch [150/388] Loss: 2.3319 (ce 0.323 l1 0.037 giou 0.098)  0.16s/batch
+  Epoch [13/50] Batch [200/388] Loss: 2.3265 (ce 0.335 l1 0.060 giou 0.138)  0.16s/batch
+  Epoch [13/50] Batch [250/388] Loss: 2.3268 (ce 0.290 l1 0.048 giou 0.121)  0.16s/batch
+  Epoch [13/50] Batch [300/388] Loss: 2.3347 (ce 0.185 l1 0.050 giou 0.125)  0.16s/batch
+  Epoch [13/50] Batch [350/388] Loss: 2.3340 (ce 0.200 l1 0.060 giou 0.139)  0.16s/batch
+Epoch [13/50], Train Loss: 2.33986, Val Loss: 2.36255 * (72s)
+  Epoch [14/50] Batch [50/388] Loss: 2.2912 (ce 0.149 l1 0.043 giou 0.112)  0.16s/batch
+  Epoch [14/50] Batch [100/388] Loss: 2.2452 (ce 0.211 l1 0.041 giou 0.111)  0.16s/batch
+  Epoch [14/50] Batch [150/388] Loss: 2.2340 (ce 0.226 l1 0.048 giou 0.116)  0.16s/batch
+  Epoch [14/50] Batch [200/388] Loss: 2.2480 (ce 0.214 l1 0.060 giou 0.117)  0.16s/batch
+  Epoch [14/50] Batch [250/388] Loss: 2.2461 (ce 0.401 l1 0.049 giou 0.122)  0.16s/batch
+  Epoch [14/50] Batch [300/388] Loss: 2.2386 (ce 0.079 l1 0.048 giou 0.123)  0.16s/batch
+  Epoch [14/50] Batch [350/388] Loss: 2.2387 (ce 0.180 l1 0.044 giou 0.110)  0.16s/batch
+Epoch [14/50], Train Loss: 2.23674, Val Loss: 2.34644 * (72s)
+  Epoch [15/50] Batch [50/388] Loss: 2.2006 (ce 0.455 l1 0.039 giou 0.105)  0.17s/batch
+  Epoch [15/50] Batch [100/388] Loss: 2.1629 (ce 0.245 l1 0.041 giou 0.108)  0.16s/batch
+  Epoch [15/50] Batch [150/388] Loss: 2.1834 (ce 0.130 l1 0.047 giou 0.113)  0.16s/batch
+  Epoch [15/50] Batch [200/388] Loss: 2.1938 (ce 0.164 l1 0.048 giou 0.111)  0.16s/batch
+  Epoch [15/50] Batch [250/388] Loss: 2.1899 (ce 0.165 l1 0.050 giou 0.131)  0.16s/batch
+  Epoch [15/50] Batch [300/388] Loss: 2.1844 (ce 0.210 l1 0.042 giou 0.105)  0.16s/batch
+  Epoch [15/50] Batch [350/388] Loss: 2.1893 (ce 0.250 l1 0.044 giou 0.106)  0.16s/batch
+Epoch [15/50], Train Loss: 2.20381, Val Loss: 2.22664 * (72s)
+  Epoch [16/50] Batch [50/388] Loss: 2.1045 (ce 0.236 l1 0.055 giou 0.111)  0.16s/batch
+  Epoch [16/50] Batch [100/388] Loss: 2.1164 (ce 0.357 l1 0.046 giou 0.110)  0.16s/batch
+  Epoch [16/50] Batch [150/388] Loss: 2.1351 (ce 0.239 l1 0.046 giou 0.114)  0.16s/batch
+  Epoch [16/50] Batch [200/388] Loss: 2.1481 (ce 0.197 l1 0.048 giou 0.106)  0.16s/batch
+  Epoch [16/50] Batch [250/388] Loss: 2.1608 (ce 0.415 l1 0.033 giou 0.086)  0.16s/batch
+  Epoch [16/50] Batch [300/388] Loss: 2.1594 (ce 0.161 l1 0.044 giou 0.107)  0.16s/batch
+  Epoch [16/50] Batch [350/388] Loss: 2.1647 (ce 0.347 l1 0.039 giou 0.092)  0.16s/batch
+Epoch [16/50], Train Loss: 2.15963, Val Loss: 2.21809 * (72s)
+  Epoch [17/50] Batch [50/388] Loss: 2.0378 (ce 0.370 l1 0.048 giou 0.116)  0.16s/batch
+  Epoch [17/50] Batch [100/388] Loss: 2.0708 (ce 0.180 l1 0.047 giou 0.110)  0.16s/batch
+  Epoch [17/50] Batch [150/388] Loss: 2.0840 (ce 0.120 l1 0.056 giou 0.123)  0.16s/batch
+  Epoch [17/50] Batch [200/388] Loss: 2.1045 (ce 0.251 l1 0.039 giou 0.092)  0.16s/batch
+  Epoch [17/50] Batch [250/388] Loss: 2.1049 (ce 0.322 l1 0.040 giou 0.092)  0.16s/batch
+  Epoch [17/50] Batch [300/388] Loss: 2.0907 (ce 0.246 l1 0.046 giou 0.104)  0.16s/batch
+  Epoch [17/50] Batch [350/388] Loss: 2.0876 (ce 0.147 l1 0.045 giou 0.108)  0.16s/batch
+Epoch [17/50], Train Loss: 2.09382, Val Loss: 2.31730 (72s)
+  Epoch [18/50] Batch [50/388] Loss: 2.0277 (ce 0.198 l1 0.049 giou 0.115)  0.17s/batch
+  Epoch [18/50] Batch [100/388] Loss: 2.0330 (ce 0.192 l1 0.057 giou 0.125)  0.16s/batch
+  Epoch [18/50] Batch [150/388] Loss: 2.0304 (ce 0.124 l1 0.045 giou 0.121)  0.16s/batch
+  Epoch [18/50] Batch [200/388] Loss: 2.0263 (ce 0.145 l1 0.052 giou 0.125)  0.16s/batch
+  Epoch [18/50] Batch [250/388] Loss: 2.0402 (ce 0.313 l1 0.042 giou 0.101)  0.16s/batch
+  Epoch [18/50] Batch [300/388] Loss: 2.0450 (ce 0.348 l1 0.033 giou 0.097)  0.16s/batch
+  Epoch [18/50] Batch [350/388] Loss: 2.0357 (ce 0.213 l1 0.038 giou 0.091)  0.16s/batch
+Epoch [18/50], Train Loss: 2.03566, Val Loss: 2.19471 * (72s)
+  Epoch [19/50] Batch [50/388] Loss: 2.0173 (ce 0.195 l1 0.043 giou 0.097)  0.16s/batch
+  Epoch [19/50] Batch [100/388] Loss: 2.0276 (ce 0.217 l1 0.042 giou 0.104)  0.16s/batch
+  Epoch [19/50] Batch [150/388] Loss: 1.9922 (ce 0.154 l1 0.050 giou 0.115)  0.16s/batch
+  Epoch [19/50] Batch [200/388] Loss: 1.9829 (ce 0.165 l1 0.047 giou 0.105)  0.16s/batch
+  Epoch [19/50] Batch [250/388] Loss: 1.9875 (ce 0.236 l1 0.038 giou 0.092)  0.16s/batch
+  Epoch [19/50] Batch [300/388] Loss: 1.9875 (ce 0.108 l1 0.043 giou 0.097)  0.16s/batch
+  Epoch [19/50] Batch [350/388] Loss: 1.9971 (ce 0.181 l1 0.035 giou 0.101)  0.16s/batch
+Epoch [19/50], Train Loss: 1.99900, Val Loss: 2.14295 * (72s)
+  Epoch [20/50] Batch [50/388] Loss: 1.9988 (ce 0.417 l1 0.045 giou 0.117)  0.16s/batch
+  Epoch [20/50] Batch [100/388] Loss: 1.9580 (ce 0.221 l1 0.033 giou 0.079)  0.16s/batch
+  Epoch [20/50] Batch [150/388] Loss: 1.9627 (ce 0.155 l1 0.041 giou 0.089)  0.16s/batch
+  Epoch [20/50] Batch [200/388] Loss: 1.9441 (ce 0.108 l1 0.034 giou 0.083)  0.16s/batch
+  Epoch [20/50] Batch [250/388] Loss: 1.9451 (ce 0.137 l1 0.041 giou 0.094)  0.16s/batch
+  Epoch [20/50] Batch [300/388] Loss: 1.9399 (ce 0.114 l1 0.036 giou 0.100)  0.16s/batch
+  Epoch [20/50] Batch [350/388] Loss: 1.9375 (ce 0.171 l1 0.042 giou 0.095)  0.16s/batch
+Epoch [20/50], Train Loss: 1.94323, Val Loss: 2.20422 (72s)
+  Epoch [21/50] Batch [50/388] Loss: 1.9335 (ce 0.121 l1 0.040 giou 0.097)  0.17s/batch
+  Epoch [21/50] Batch [100/388] Loss: 1.9048 (ce 0.228 l1 0.056 giou 0.132)  0.16s/batch
+  Epoch [21/50] Batch [150/388] Loss: 1.9096 (ce 0.131 l1 0.046 giou 0.111)  0.16s/batch
+  Epoch [21/50] Batch [200/388] Loss: 1.8791 (ce 0.136 l1 0.039 giou 0.104)  0.16s/batch
+  Epoch [21/50] Batch [250/388] Loss: 1.8852 (ce 0.319 l1 0.049 giou 0.103)  0.16s/batch
+  Epoch [21/50] Batch [300/388] Loss: 1.8943 (ce 0.130 l1 0.051 giou 0.100)  0.16s/batch
+  Epoch [21/50] Batch [350/388] Loss: 1.9039 (ce 0.336 l1 0.046 giou 0.103)  0.16s/batch
+Epoch [21/50], Train Loss: 1.89695, Val Loss: 2.07537 * (72s)
+  Epoch [22/50] Batch [50/388] Loss: 1.8561 (ce 0.188 l1 0.041 giou 0.088)  0.17s/batch
+  Epoch [22/50] Batch [100/388] Loss: 1.8429 (ce 0.245 l1 0.047 giou 0.107)  0.16s/batch
+  Epoch [22/50] Batch [150/388] Loss: 1.8509 (ce 0.065 l1 0.031 giou 0.093)  0.16s/batch
+  Epoch [22/50] Batch [200/388] Loss: 1.8462 (ce 0.088 l1 0.033 giou 0.088)  0.16s/batch
+  Epoch [22/50] Batch [250/388] Loss: 1.8497 (ce 0.207 l1 0.042 giou 0.095)  0.16s/batch
+  Epoch [22/50] Batch [300/388] Loss: 1.8403 (ce 0.176 l1 0.043 giou 0.096)  0.16s/batch
+  Epoch [22/50] Batch [350/388] Loss: 1.8494 (ce 0.232 l1 0.052 giou 0.112)  0.16s/batch
+Epoch [22/50], Train Loss: 1.85292, Val Loss: 2.09339 (72s)
+  Epoch [23/50] Batch [50/388] Loss: 1.7853 (ce 0.177 l1 0.034 giou 0.095)  0.16s/batch
+  Epoch [23/50] Batch [100/388] Loss: 1.8134 (ce 0.089 l1 0.045 giou 0.091)  0.16s/batch
+  Epoch [23/50] Batch [150/388] Loss: 1.8248 (ce 0.180 l1 0.044 giou 0.102)  0.16s/batch
+  Epoch [23/50] Batch [200/388] Loss: 1.8361 (ce 0.345 l1 0.042 giou 0.095)  0.16s/batch
+  Epoch [23/50] Batch [250/388] Loss: 1.8140 (ce 0.096 l1 0.043 giou 0.101)  0.16s/batch
+  Epoch [23/50] Batch [300/388] Loss: 1.8055 (ce 0.124 l1 0.047 giou 0.111)  0.16s/batch
+  Epoch [23/50] Batch [350/388] Loss: 1.8055 (ce 0.193 l1 0.039 giou 0.093)  0.16s/batch
+Epoch [23/50], Train Loss: 1.80873, Val Loss: 2.00728 * (71s)
+  Epoch [24/50] Batch [50/388] Loss: 1.7322 (ce 0.138 l1 0.040 giou 0.082)  0.16s/batch
+  Epoch [24/50] Batch [100/388] Loss: 1.7760 (ce 0.104 l1 0.030 giou 0.085)  0.16s/batch
+  Epoch [24/50] Batch [150/388] Loss: 1.7708 (ce 0.116 l1 0.051 giou 0.116)  0.16s/batch
+  Epoch [24/50] Batch [200/388] Loss: 1.7891 (ce 0.125 l1 0.041 giou 0.093)  0.16s/batch
+  Epoch [24/50] Batch [250/388] Loss: 1.7903 (ce 0.127 l1 0.036 giou 0.084)  0.16s/batch
+  Epoch [24/50] Batch [300/388] Loss: 1.7879 (ce 0.157 l1 0.040 giou 0.096)  0.16s/batch
+  Epoch [24/50] Batch [350/388] Loss: 1.7790 (ce 0.097 l1 0.032 giou 0.085)  0.16s/batch
+Epoch [24/50], Train Loss: 1.78668, Val Loss: 1.99647 * (73s)
+  Epoch [25/50] Batch [50/388] Loss: 1.7692 (ce 0.136 l1 0.036 giou 0.085)  0.19s/batch
+  Epoch [25/50] Batch [100/388] Loss: 1.7449 (ce 0.368 l1 0.048 giou 0.092)  0.18s/batch
+  Epoch [25/50] Batch [150/388] Loss: 1.7370 (ce 0.223 l1 0.034 giou 0.084)  0.18s/batch
+  Epoch [25/50] Batch [200/388] Loss: 1.7356 (ce 0.171 l1 0.041 giou 0.091)  0.18s/batch
+  Epoch [25/50] Batch [250/388] Loss: 1.7385 (ce 0.105 l1 0.040 giou 0.090)  0.17s/batch
+  Epoch [25/50] Batch [300/388] Loss: 1.7466 (ce 0.288 l1 0.039 giou 0.099)  0.17s/batch
+  Epoch [25/50] Batch [350/388] Loss: 1.7449 (ce 0.164 l1 0.038 giou 0.081)  0.17s/batch
+Epoch [25/50], Train Loss: 1.74032, Val Loss: 2.08265 (81s)
+  Epoch [26/50] Batch [50/388] Loss: 1.7022 (ce 0.214 l1 0.033 giou 0.098)  0.20s/batch
+  Epoch [26/50] Batch [100/388] Loss: 1.7013 (ce 0.140 l1 0.035 giou 0.097)  0.19s/batch
+  Epoch [26/50] Batch [150/388] Loss: 1.7052 (ce 0.219 l1 0.034 giou 0.085)  0.19s/batch
+  Epoch [26/50] Batch [200/388] Loss: 1.6997 (ce 0.135 l1 0.033 giou 0.093)  0.19s/batch
+  Epoch [26/50] Batch [250/388] Loss: 1.6910 (ce 0.135 l1 0.039 giou 0.096)  0.19s/batch
+  Epoch [26/50] Batch [300/388] Loss: 1.6948 (ce 0.155 l1 0.043 giou 0.088)  0.19s/batch
+  Epoch [26/50] Batch [350/388] Loss: 1.7042 (ce 0.113 l1 0.031 giou 0.074)  0.19s/batch
+Epoch [26/50], Train Loss: 1.69870, Val Loss: 2.02133 (87s)
+  Epoch [27/50] Batch [50/388] Loss: 1.6779 (ce 0.140 l1 0.037 giou 0.082)  0.19s/batch
+  Epoch [27/50] Batch [100/388] Loss: 1.6668 (ce 0.155 l1 0.034 giou 0.085)  0.19s/batch
+  Epoch [27/50] Batch [150/388] Loss: 1.6922 (ce 0.143 l1 0.035 giou 0.085)  0.19s/batch
+  Epoch [27/50] Batch [200/388] Loss: 1.6863 (ce 0.131 l1 0.035 giou 0.080)  0.19s/batch
+  Epoch [27/50] Batch [250/388] Loss: 1.6633 (ce 0.142 l1 0.038 giou 0.086)  0.19s/batch
+  Epoch [27/50] Batch [300/388] Loss: 1.6710 (ce 0.102 l1 0.026 giou 0.074)  0.19s/batch
+  Epoch [27/50] Batch [350/388] Loss: 1.6706 (ce 0.330 l1 0.030 giou 0.075)  0.19s/batch
+Epoch [27/50], Train Loss: 1.67244, Val Loss: 1.94543 * (85s)
+  Epoch [28/50] Batch [50/388] Loss: 1.5945 (ce 0.209 l1 0.033 giou 0.081)  0.19s/batch
+  Epoch [28/50] Batch [100/388] Loss: 1.6063 (ce 0.268 l1 0.039 giou 0.094)  0.20s/batch
+  Epoch [28/50] Batch [150/388] Loss: 1.6102 (ce 0.347 l1 0.036 giou 0.089)  0.19s/batch
+  Epoch [28/50] Batch [200/388] Loss: 1.6131 (ce 0.109 l1 0.039 giou 0.092)  0.19s/batch
+  Epoch [28/50] Batch [250/388] Loss: 1.6351 (ce 0.135 l1 0.036 giou 0.079)  0.19s/batch
+  Epoch [28/50] Batch [300/388] Loss: 1.6324 (ce 0.198 l1 0.029 giou 0.076)  0.19s/batch
+  Epoch [28/50] Batch [350/388] Loss: 1.6404 (ce 0.182 l1 0.029 giou 0.078)  0.19s/batch
+Epoch [28/50], Train Loss: 1.64577, Val Loss: 1.97181 (87s)
+  Epoch [29/50] Batch [50/388] Loss: 1.6509 (ce 0.231 l1 0.035 giou 0.095)  0.20s/batch
+  Epoch [29/50] Batch [100/388] Loss: 1.6245 (ce 0.157 l1 0.035 giou 0.093)  0.20s/batch
+  Epoch [29/50] Batch [150/388] Loss: 1.6146 (ce 0.219 l1 0.035 giou 0.088)  0.19s/batch
+  Epoch [29/50] Batch [200/388] Loss: 1.6099 (ce 0.071 l1 0.036 giou 0.079)  0.19s/batch
+  Epoch [29/50] Batch [250/388] Loss: 1.6134 (ce 0.159 l1 0.039 giou 0.085)  0.19s/batch
+  Epoch [29/50] Batch [300/388] Loss: 1.6186 (ce 0.162 l1 0.038 giou 0.090)  0.19s/batch
+  Epoch [29/50] Batch [350/388] Loss: 1.6186 (ce 0.409 l1 0.036 giou 0.089)  0.19s/batch
+Epoch [29/50], Train Loss: 1.61255, Val Loss: 1.92676 * (88s)
+  Epoch [30/50] Batch [50/388] Loss: 1.5815 (ce 0.101 l1 0.035 giou 0.082)  0.18s/batch
+  Epoch [30/50] Batch [100/388] Loss: 1.5860 (ce 0.232 l1 0.030 giou 0.084)  0.18s/batch
+  Epoch [30/50] Batch [150/388] Loss: 1.6036 (ce 0.160 l1 0.032 giou 0.086)  0.18s/batch
+  Epoch [30/50] Batch [200/388] Loss: 1.5809 (ce 0.172 l1 0.028 giou 0.074)  0.18s/batch
+  Epoch [30/50] Batch [250/388] Loss: 1.5882 (ce 0.139 l1 0.035 giou 0.081)  0.18s/batch
+  Epoch [30/50] Batch [300/388] Loss: 1.5973 (ce 0.218 l1 0.032 giou 0.072)  0.18s/batch
+  Epoch [30/50] Batch [350/388] Loss: 1.5936 (ce 0.137 l1 0.033 giou 0.077)  0.18s/batch
+Epoch [30/50], Train Loss: 1.58774, Val Loss: 1.94167 (83s)
+  Epoch [31/50] Batch [50/388] Loss: 1.4958 (ce 0.057 l1 0.036 giou 0.079)  0.21s/batch
+  Epoch [31/50] Batch [100/388] Loss: 1.5008 (ce 0.079 l1 0.029 giou 0.065)  0.20s/batch
+  Epoch [31/50] Batch [150/388] Loss: 1.5175 (ce 0.184 l1 0.033 giou 0.087)  0.20s/batch
+  Epoch [31/50] Batch [200/388] Loss: 1.5248 (ce 0.118 l1 0.047 giou 0.102)  0.19s/batch
+  Epoch [31/50] Batch [250/388] Loss: 1.5370 (ce 0.097 l1 0.042 giou 0.095)  0.19s/batch
+  Epoch [31/50] Batch [300/388] Loss: 1.5537 (ce 0.270 l1 0.033 giou 0.082)  0.19s/batch
+  Epoch [31/50] Batch [350/388] Loss: 1.5604 (ce 0.097 l1 0.030 giou 0.084)  0.19s/batch
+Epoch [31/50], Train Loss: 1.56318, Val Loss: 1.90258 * (86s)
+  Epoch [32/50] Batch [50/388] Loss: 1.5045 (ce 0.119 l1 0.031 giou 0.087)  0.21s/batch
+  Epoch [32/50] Batch [100/388] Loss: 1.5191 (ce 0.203 l1 0.031 giou 0.075)  0.20s/batch
+  Epoch [32/50] Batch [150/388] Loss: 1.5381 (ce 0.205 l1 0.044 giou 0.093)  0.19s/batch
+  Epoch [32/50] Batch [200/388] Loss: 1.5386 (ce 0.120 l1 0.032 giou 0.080)  0.19s/batch
+  Epoch [32/50] Batch [250/388] Loss: 1.5412 (ce 0.120 l1 0.037 giou 0.103)  0.19s/batch
+  Epoch [32/50] Batch [300/388] Loss: 1.5390 (ce 0.088 l1 0.031 giou 0.071)  0.19s/batch
+  Epoch [32/50] Batch [350/388] Loss: 1.5335 (ce 0.164 l1 0.030 giou 0.080)  0.19s/batch
+Epoch [32/50], Train Loss: 1.53311, Val Loss: 1.89380 * (86s)
+  Epoch [33/50] Batch [50/388] Loss: 1.4910 (ce 0.112 l1 0.034 giou 0.072)  0.18s/batch
+  Epoch [33/50] Batch [100/388] Loss: 1.4851 (ce 0.117 l1 0.029 giou 0.075)  0.18s/batch
+  Epoch [33/50] Batch [150/388] Loss: 1.4970 (ce 0.066 l1 0.027 giou 0.074)  0.18s/batch
+  Epoch [33/50] Batch [200/388] Loss: 1.4997 (ce 0.040 l1 0.027 giou 0.068)  0.18s/batch
+  Epoch [33/50] Batch [250/388] Loss: 1.5094 (ce 0.143 l1 0.028 giou 0.071)  0.18s/batch
+  Epoch [33/50] Batch [300/388] Loss: 1.5201 (ce 0.153 l1 0.035 giou 0.085)  0.18s/batch
+  Epoch [33/50] Batch [350/388] Loss: 1.5206 (ce 0.152 l1 0.044 giou 0.096)  0.18s/batch
+Epoch [33/50], Train Loss: 1.51705, Val Loss: 1.86909 * (80s)
+  Epoch [34/50] Batch [50/388] Loss: 1.5175 (ce 0.080 l1 0.041 giou 0.087)  0.18s/batch
+  Epoch [34/50] Batch [100/388] Loss: 1.5112 (ce 0.086 l1 0.029 giou 0.068)  0.18s/batch
+  Epoch [34/50] Batch [150/388] Loss: 1.4723 (ce 0.033 l1 0.031 giou 0.078)  0.18s/batch
+  Epoch [34/50] Batch [200/388] Loss: 1.4760 (ce 0.099 l1 0.033 giou 0.077)  0.18s/batch
+  Epoch [34/50] Batch [250/388] Loss: 1.4704 (ce 0.138 l1 0.032 giou 0.085)  0.18s/batch
+  Epoch [34/50] Batch [300/388] Loss: 1.4755 (ce 0.108 l1 0.039 giou 0.095)  0.18s/batch
+  Epoch [34/50] Batch [350/388] Loss: 1.4810 (ce 0.167 l1 0.031 giou 0.087)  0.18s/batch
+Epoch [34/50], Train Loss: 1.47784, Val Loss: 1.85036 * (81s)
+  Epoch [35/50] Batch [50/388] Loss: 1.4308 (ce 0.204 l1 0.035 giou 0.080)  0.19s/batch
+  Epoch [35/50] Batch [100/388] Loss: 1.4471 (ce 0.081 l1 0.031 giou 0.073)  0.18s/batch
+  Epoch [35/50] Batch [150/388] Loss: 1.4502 (ce 0.128 l1 0.028 giou 0.072)  0.18s/batch
+  Epoch [35/50] Batch [200/388] Loss: 1.4492 (ce 0.100 l1 0.033 giou 0.084)  0.18s/batch
+  Epoch [35/50] Batch [250/388] Loss: 1.4501 (ce 0.119 l1 0.036 giou 0.081)  0.18s/batch
+  Epoch [35/50] Batch [300/388] Loss: 1.4532 (ce 0.096 l1 0.027 giou 0.069)  0.18s/batch
+  Epoch [35/50] Batch [350/388] Loss: 1.4526 (ce 0.086 l1 0.034 giou 0.088)  0.18s/batch
+Epoch [35/50], Train Loss: 1.44487, Val Loss: 1.89129 (81s)
+  Epoch [36/50] Batch [50/388] Loss: 1.4623 (ce 0.137 l1 0.030 giou 0.074)  0.18s/batch
+  Epoch [36/50] Batch [100/388] Loss: 1.4266 (ce 0.094 l1 0.030 giou 0.073)  0.18s/batch
+  Epoch [36/50] Batch [150/388] Loss: 1.4417 (ce 0.078 l1 0.038 giou 0.079)  0.18s/batch
+  Epoch [36/50] Batch [200/388] Loss: 1.4295 (ce 0.183 l1 0.035 giou 0.095)  0.18s/batch
+  Epoch [36/50] Batch [250/388] Loss: 1.4350 (ce 0.061 l1 0.036 giou 0.084)  0.18s/batch
+  Epoch [36/50] Batch [300/388] Loss: 1.4389 (ce 0.338 l1 0.033 giou 0.085)  0.18s/batch
+  Epoch [36/50] Batch [350/388] Loss: 1.4320 (ce 0.090 l1 0.038 giou 0.089)  0.17s/batch
+Epoch [36/50], Train Loss: 1.43653, Val Loss: 1.84893 * (79s)
+  Epoch [37/50] Batch [50/388] Loss: 1.3576 (ce 0.097 l1 0.028 giou 0.081)  0.19s/batch
+  Epoch [37/50] Batch [100/388] Loss: 1.3427 (ce 0.044 l1 0.026 giou 0.076)  0.18s/batch
+  Epoch [37/50] Batch [150/388] Loss: 1.3671 (ce 0.077 l1 0.031 giou 0.081)  0.18s/batch
+  Epoch [37/50] Batch [200/388] Loss: 1.3857 (ce 0.090 l1 0.035 giou 0.082)  0.18s/batch
+  Epoch [37/50] Batch [250/388] Loss: 1.3906 (ce 0.198 l1 0.024 giou 0.059)  0.18s/batch
+  Epoch [37/50] Batch [300/388] Loss: 1.4041 (ce 0.179 l1 0.033 giou 0.080)  0.18s/batch
+  Epoch [37/50] Batch [350/388] Loss: 1.4058 (ce 0.106 l1 0.033 giou 0.081)  0.18s/batch
+Epoch [37/50], Train Loss: 1.40801, Val Loss: 1.83313 * (80s)
+  Epoch [38/50] Batch [50/388] Loss: 1.3447 (ce 0.095 l1 0.031 giou 0.092)  0.18s/batch
+  Epoch [38/50] Batch [100/388] Loss: 1.3573 (ce 0.110 l1 0.029 giou 0.090)  0.18s/batch
+  Epoch [38/50] Batch [150/388] Loss: 1.3682 (ce 0.084 l1 0.027 giou 0.068)  0.18s/batch
+  Epoch [38/50] Batch [200/388] Loss: 1.3781 (ce 0.145 l1 0.028 giou 0.069)  0.17s/batch
+  Epoch [38/50] Batch [250/388] Loss: 1.3851 (ce 0.179 l1 0.026 giou 0.064)  0.17s/batch
+  Epoch [38/50] Batch [300/388] Loss: 1.3836 (ce 0.093 l1 0.025 giou 0.065)  0.17s/batch
+  Epoch [38/50] Batch [350/388] Loss: 1.3874 (ce 0.062 l1 0.027 giou 0.072)  0.17s/batch
+Epoch [38/50], Train Loss: 1.38270, Val Loss: 1.88647 (79s)
+  Epoch [39/50] Batch [50/388] Loss: 1.3763 (ce 0.143 l1 0.033 giou 0.078)  0.19s/batch
+  Epoch [39/50] Batch [100/388] Loss: 1.3666 (ce 0.264 l1 0.032 giou 0.073)  0.18s/batch
+  Epoch [39/50] Batch [150/388] Loss: 1.3642 (ce 0.212 l1 0.025 giou 0.066)  0.18s/batch
+  Epoch [39/50] Batch [200/388] Loss: 1.3830 (ce 0.042 l1 0.039 giou 0.096)  0.18s/batch
+  Epoch [39/50] Batch [250/388] Loss: 1.3932 (ce 0.369 l1 0.036 giou 0.074)  0.18s/batch
+  Epoch [39/50] Batch [300/388] Loss: 1.3925 (ce 0.064 l1 0.031 giou 0.079)  0.18s/batch
+  Epoch [39/50] Batch [350/388] Loss: 1.3860 (ce 0.116 l1 0.035 giou 0.085)  0.18s/batch
+Epoch [39/50], Train Loss: 1.38494, Val Loss: 1.85790 (80s)
+  Epoch [40/50] Batch [50/388] Loss: 1.3729 (ce 0.080 l1 0.030 giou 0.079)  0.17s/batch
+  Epoch [40/50] Batch [100/388] Loss: 1.3668 (ce 0.082 l1 0.037 giou 0.083)  0.17s/batch
+  Epoch [40/50] Batch [150/388] Loss: 1.3663 (ce 0.087 l1 0.027 giou 0.070)  0.17s/batch
+  Epoch [40/50] Batch [200/388] Loss: 1.3612 (ce 0.332 l1 0.029 giou 0.074)  0.17s/batch
+  Epoch [40/50] Batch [250/388] Loss: 1.3674 (ce 0.085 l1 0.026 giou 0.067)  0.17s/batch
+  Epoch [40/50] Batch [300/388] Loss: 1.3705 (ce 0.123 l1 0.032 giou 0.066)  0.17s/batch
+  Epoch [40/50] Batch [350/388] Loss: 1.3648 (ce 0.085 l1 0.032 giou 0.074)  0.17s/batch
+Epoch [40/50], Train Loss: 1.36951, Val Loss: 1.85504 (79s)
+  Epoch [41/50] Batch [50/388] Loss: 1.3579 (ce 0.112 l1 0.036 giou 0.080)  0.19s/batch
+  Epoch [41/50] Batch [100/388] Loss: 1.3515 (ce 0.038 l1 0.033 giou 0.081)  0.18s/batch
+  Epoch [41/50] Batch [150/388] Loss: 1.3446 (ce 0.067 l1 0.036 giou 0.088)  0.18s/batch
+  Epoch [41/50] Batch [200/388] Loss: 1.3441 (ce 0.130 l1 0.034 giou 0.078)  0.18s/batch
+  Epoch [41/50] Batch [250/388] Loss: 1.3435 (ce 0.230 l1 0.029 giou 0.071)  0.18s/batch
+  Epoch [41/50] Batch [300/388] Loss: 1.3465 (ce 0.110 l1 0.024 giou 0.063)  0.18s/batch
+  Epoch [41/50] Batch [350/388] Loss: 1.3477 (ce 0.079 l1 0.026 giou 0.075)  0.18s/batch
+Epoch [41/50], Train Loss: 1.35025, Val Loss: 1.83460 (81s)
+  Epoch [42/50] Batch [50/388] Loss: 1.3709 (ce 0.079 l1 0.030 giou 0.071)  0.18s/batch
+  Epoch [42/50] Batch [100/388] Loss: 1.3371 (ce 0.187 l1 0.026 giou 0.071)  0.17s/batch
+  Epoch [42/50] Batch [150/388] Loss: 1.3540 (ce 0.278 l1 0.033 giou 0.072)  0.18s/batch
+  Epoch [42/50] Batch [200/388] Loss: 1.3656 (ce 0.165 l1 0.039 giou 0.081)  0.17s/batch
+  Epoch [42/50] Batch [250/388] Loss: 1.3571 (ce 0.117 l1 0.031 giou 0.076)  0.17s/batch
+  Epoch [42/50] Batch [300/388] Loss: 1.3511 (ce 0.270 l1 0.031 giou 0.071)  0.17s/batch
+  Epoch [42/50] Batch [350/388] Loss: 1.3470 (ce 0.179 l1 0.029 giou 0.071)  0.17s/batch
+Epoch [42/50], Train Loss: 1.34318, Val Loss: 1.85889 (80s)
+  Epoch [43/50] Batch [50/388] Loss: 1.3826 (ce 0.102 l1 0.030 giou 0.078)  0.18s/batch
+  Epoch [43/50] Batch [100/388] Loss: 1.3695 (ce 0.043 l1 0.029 giou 0.085)  0.18s/batch
+  Epoch [43/50] Batch [150/388] Loss: 1.3505 (ce 0.036 l1 0.028 giou 0.072)  0.18s/batch
+  Epoch [43/50] Batch [200/388] Loss: 1.3314 (ce 0.167 l1 0.034 giou 0.078)  0.18s/batch
+  Epoch [43/50] Batch [250/388] Loss: 1.3298 (ce 0.147 l1 0.027 giou 0.070)  0.18s/batch
+  Epoch [43/50] Batch [300/388] Loss: 1.3338 (ce 0.135 l1 0.031 giou 0.076)  0.18s/batch
+  Epoch [43/50] Batch [350/388] Loss: 1.3286 (ce 0.080 l1 0.036 giou 0.079)  0.18s/batch
+Epoch [43/50], Train Loss: 1.32614, Val Loss: 1.84005 (80s)
+  Epoch [44/50] Batch [50/388] Loss: 1.3618 (ce 0.191 l1 0.038 giou 0.099)  0.18s/batch
+  Epoch [44/50] Batch [100/388] Loss: 1.3284 (ce 0.072 l1 0.027 giou 0.069)  0.17s/batch
+  Epoch [44/50] Batch [150/388] Loss: 1.3238 (ce 0.141 l1 0.035 giou 0.086)  0.18s/batch
+  Epoch [44/50] Batch [200/388] Loss: 1.3199 (ce 0.092 l1 0.028 giou 0.070)  0.17s/batch
+  Epoch [44/50] Batch [250/388] Loss: 1.3168 (ce 0.106 l1 0.036 giou 0.073)  0.17s/batch
+  Epoch [44/50] Batch [300/388] Loss: 1.3131 (ce 0.129 l1 0.032 giou 0.076)  0.17s/batch
+  Epoch [44/50] Batch [350/388] Loss: 1.3160 (ce 0.067 l1 0.032 giou 0.074)  0.17s/batch
+Epoch [44/50], Train Loss: 1.31574, Val Loss: 1.85340 (80s)
+  Epoch [45/50] Batch [50/388] Loss: 1.2733 (ce 0.073 l1 0.023 giou 0.067)  0.18s/batch
+  Epoch [45/50] Batch [100/388] Loss: 1.2718 (ce 0.062 l1 0.033 giou 0.088)  0.18s/batch
+  Epoch [45/50] Batch [150/388] Loss: 1.2923 (ce 0.091 l1 0.024 giou 0.061)  0.18s/batch
+  Epoch [45/50] Batch [200/388] Loss: 1.3046 (ce 0.030 l1 0.027 giou 0.079)  0.18s/batch
+  Epoch [45/50] Batch [250/388] Loss: 1.3115 (ce 0.191 l1 0.034 giou 0.074)  0.18s/batch
+  Epoch [45/50] Batch [300/388] Loss: 1.3120 (ce 0.087 l1 0.028 giou 0.077)  0.18s/batch
+  Epoch [45/50] Batch [350/388] Loss: 1.3167 (ce 0.083 l1 0.033 giou 0.081)  0.18s/batch
+Epoch [45/50], Train Loss: 1.31146, Val Loss: 1.84882 (80s)
+  Epoch [46/50] Batch [50/388] Loss: 1.2970 (ce 0.254 l1 0.025 giou 0.069)  0.19s/batch
+  Epoch [46/50] Batch [100/388] Loss: 1.2875 (ce 0.081 l1 0.033 giou 0.087)  0.18s/batch
+  Epoch [46/50] Batch [150/388] Loss: 1.3045 (ce 0.060 l1 0.030 giou 0.079)  0.18s/batch
+  Epoch [46/50] Batch [200/388] Loss: 1.2952 (ce 0.094 l1 0.035 giou 0.081)  0.18s/batch
+  Epoch [46/50] Batch [250/388] Loss: 1.3058 (ce 0.060 l1 0.036 giou 0.086)  0.18s/batch
+  Epoch [46/50] Batch [300/388] Loss: 1.3085 (ce 0.078 l1 0.029 giou 0.076)  0.18s/batch
+  Epoch [46/50] Batch [350/388] Loss: 1.3104 (ce 0.182 l1 0.034 giou 0.081)  0.17s/batch
+Epoch [46/50], Train Loss: 1.30711, Val Loss: 1.83083 * (80s)
+  Epoch [47/50] Batch [50/388] Loss: 1.3208 (ce 0.128 l1 0.035 giou 0.076)  0.18s/batch
+  Epoch [47/50] Batch [100/388] Loss: 1.3035 (ce 0.080 l1 0.029 giou 0.067)  0.18s/batch
+  Epoch [47/50] Batch [150/388] Loss: 1.2897 (ce 0.078 l1 0.035 giou 0.076)  0.18s/batch
+  Epoch [47/50] Batch [200/388] Loss: 1.2995 (ce 0.118 l1 0.025 giou 0.076)  0.18s/batch
+  Epoch [47/50] Batch [250/388] Loss: 1.2989 (ce 0.063 l1 0.033 giou 0.075)  0.18s/batch
+  Epoch [47/50] Batch [300/388] Loss: 1.3071 (ce 0.199 l1 0.034 giou 0.075)  0.17s/batch
+  Epoch [47/50] Batch [350/388] Loss: 1.3091 (ce 0.160 l1 0.026 giou 0.072)  0.17s/batch
+Epoch [47/50], Train Loss: 1.31025, Val Loss: 1.83010 * (79s)
+  Epoch [48/50] Batch [50/388] Loss: 1.2729 (ce 0.111 l1 0.032 giou 0.073)  0.18s/batch
+  Epoch [48/50] Batch [100/388] Loss: 1.2964 (ce 0.059 l1 0.025 giou 0.070)  0.18s/batch
+  Epoch [48/50] Batch [150/388] Loss: 1.2926 (ce 0.031 l1 0.025 giou 0.063)  0.17s/batch
+  Epoch [48/50] Batch [200/388] Loss: 1.2966 (ce 0.038 l1 0.031 giou 0.072)  0.17s/batch
+  Epoch [48/50] Batch [250/388] Loss: 1.3031 (ce 0.077 l1 0.039 giou 0.084)  0.17s/batch
+  Epoch [48/50] Batch [300/388] Loss: 1.3062 (ce 0.170 l1 0.033 giou 0.080)  0.17s/batch
+  Epoch [48/50] Batch [350/388] Loss: 1.3051 (ce 0.218 l1 0.029 giou 0.075)  0.17s/batch
+Epoch [48/50], Train Loss: 1.30309, Val Loss: 1.83377 (79s)
+  Epoch [49/50] Batch [50/388] Loss: 1.3221 (ce 0.077 l1 0.029 giou 0.076)  0.18s/batch
+  Epoch [49/50] Batch [100/388] Loss: 1.3229 (ce 0.097 l1 0.041 giou 0.096)  0.17s/batch
+  Epoch [49/50] Batch [150/388] Loss: 1.3181 (ce 0.101 l1 0.029 giou 0.077)  0.17s/batch
+  Epoch [49/50] Batch [200/388] Loss: 1.3079 (ce 0.075 l1 0.040 giou 0.081)  0.17s/batch
+  Epoch [49/50] Batch [250/388] Loss: 1.3084 (ce 0.087 l1 0.026 giou 0.066)  0.17s/batch
+  Epoch [49/50] Batch [300/388] Loss: 1.3029 (ce 0.055 l1 0.031 giou 0.067)  0.17s/batch
+  Epoch [49/50] Batch [350/388] Loss: 1.2976 (ce 0.061 l1 0.025 giou 0.068)  0.17s/batch
+Epoch [49/50], Train Loss: 1.29726, Val Loss: 1.83204 (79s)
+Average time per epoch: 77.13s
+Best validation loss: 1.83010 (epoch 47)
+--- Validation set (2661 images) ---
+Validation accuracy: 0.8241
+Mean GIoU of top box vs. pseudo-label box: 0.9184
+Confusion matrix (rows = true, cols = predicted): ['disturbed', 'merging', 'round_smooth', 'in_between_round_smooth', 'cigar_smooth', 'barred_spiral', 'unbarred_tight_spiral', 'unbarred_loose_spiral', 'edge_on_no_bulge', 'edge_on_with_bulge']
+[[ 48   3   9  19   5  13   6  53   2   4]
+ [  0 247   2   6   0   6   1  12   1   3]
+ [  2   5 369   1   0   2  11   7   0   0]
+ [  4   4   3 284   2   0   2   5   0   0]
+ [  0   1   0   5  36   0   0   0   1   7]
+ [  5   8   1   2   3 248   7  28   1   4]
+ [  2   3   7   5   0   4 217  32   3   2]
+ [ 20   7   3   7   0  11  39 292   6   9]
+ [  4   2   0   0   0   4   4   7 183   9]
+ [  1   2   0   1   0   0   0   3   5 269]]
+--- Test set (2661 images) ---
+Test accuracy: 0.8275
+Mean GIoU of top box vs. pseudo-label box: 0.9195
+Confusion matrix (rows = true, cols = predicted): ['disturbed', 'merging', 'round_smooth', 'in_between_round_smooth', 'cigar_smooth', 'barred_spiral', 'unbarred_tight_spiral', 'unbarred_loose_spiral', 'edge_on_no_bulge', 'edge_on_with_bulge']
+[[ 59   8  14  15   4   7   4  41   3   7]
+ [  6 244   5   3   0   5   3   7   0   5]
+ [  0   4 373   1   0   2  11   6   0   0]
+ [  6   2   3 282   5   0   3   2   0   1]
+ [  0   0   0   2  42   1   0   1   2   2]
+ [  4   4   1   2   2 253   8  28   3   2]
+ [  4   1   9   3   2   4 203  44   4   0]
+ [ 11  15   5   4   2  17  48 287   0   5]
+ [  5   0   0   0   0   0   1   2 197   9]
+ [  5   4   1   1   1   1   1   0   5 262]]
