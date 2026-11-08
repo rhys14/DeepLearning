@@ -164,7 +164,11 @@ def write_report(run_dir, run_name, cfg, class_names, history, metrics, setup, t
     L.append(f"| Dataset | `{d['h5_path']}` |")
     L.append(f"| Train / validation / test images | {setup['n_train']} / {setup['n_val']} / {setup.get('n_test', 0)} "
              f"(stratified, seed {cfg['seed']}) |")
-    L.append(f"| Training flips | {'on' if d.get('augment_flips', True) else 'off'} |")
+    crop = d.get("crop", 224)
+    L.append(f"| Input size | {'whole 256 x 256 image' if not crop else f'center-crop {crop} x {crop}'} |")
+    aug = [n for n, on in [("random H/V flips", d.get("augment_flips", True)),
+                           ("random 90-degree rotations", d.get("augment_rot90", False))] if on]
+    L.append(f"| Training augmentation | {', '.join(aug) if aug else 'none'} (training split only) |")
     if d.get("sampler", "weighted") == "weighted":
         L.append(f"| Batch sampling (training) | weighted random sampler, power {d.get('sampler_power', 1.0)} "
                  f"(class-balanced; validation/test keep the natural mix) |")

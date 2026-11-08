@@ -33,7 +33,8 @@ SEEN = {'train': 'yes, trained on', 'val': 'used to pick the checkpoint', 'test'
 def unaugmented(loader):
     """Same images as `loader` (e.g. the training split) but with augmentation off and no shuffling."""
     ds = loader.dataset
-    plain = Galaxy10DETRDataset(ds.file_path, ds.indices, ds.labels, ds.npy_path, ds.images, train=False)
+    plain = Galaxy10DETRDataset(ds.file_path, ds.indices, ds.labels, ds.npy_path, ds.images, train=False,
+                                crop=ds.crop)
     return torch.utils.data.DataLoader(plain, batch_size=loader.batch_size, num_workers=loader.num_workers,
                                        collate_fn=collate, persistent_workers=loader.num_workers > 0)
 

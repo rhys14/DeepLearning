@@ -16,7 +16,9 @@ data:
   num_workers: 2
   image_source: memmap                    # memmap (default) | ram (needs ~3.5 GB RAM) | h5 (slow lazy reads)
   npy_path: null                          # memmap file; null = data/Galaxy10_DECals_images.npy (gitignored)
+  crop: null                              # null = whole 256x256 image; 224 = center-crop (earlier runs)
   augment_flips: true                     # random H/V flips on the TRAINING split only
+  augment_rot90: true                     # random 0/90/180/270 rotation on the TRAINING split only
   sampler: weighted                       # weighted = class-balanced batches (training only) | shuffle = natural mix
   sampler_power: 1.0                      # 1.0 = all classes equally often; 0.5 = partial rebalancing
 

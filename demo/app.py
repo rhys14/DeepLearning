@@ -123,14 +123,38 @@ class DINOv2Wrapper(nn.Module):
         return self.model(pixel_values=x).logits
 
 
+# transformers renamed DINOv2's attention weights around v5. A checkpoint saved with one version has to
+# be renamed to load into the other, so both directions are tried.
+_NEW_TO_OLD = [(".attention.q_proj.", ".attention.attention.query."),
+               (".attention.k_proj.", ".attention.attention.key."),
+               (".attention.v_proj.", ".attention.attention.value."),
+               (".attention.o_proj.", ".attention.output.dense.")]
+
+
+def _rename(state, pairs):
+    out = {}
+    for k, v in state.items():
+        for a, b in pairs:
+            if a in k:
+                k = k.replace(a, b)
+                break
+        out[k] = v
+    return out
+
+
 def _dinov2_key_variants(state):
     """The checkpoint may have been saved from GalaxyDINOv2 (model.dinov2.*), from the bare HF model
-    (dinov2.*), or with other prefixes. Yield remapped copies to try against the wrapper's keys."""
-    yield state
-    yield {"model." + k: v for k, v in state.items()}
+    (dinov2.*), with other prefixes, and with either transformers naming for the attention weights.
+    Yield every combination to try against the wrapper's keys."""
+    prefixed = [state, {"model." + k: v for k, v in state.items()}]
     for pre in ("model.model.", "backbone.", "net."):
         if any(k.startswith(pre) for k in state):
-            yield {"model." + k.removeprefix(pre): v for k, v in state.items()}
+            prefixed.append({"model." + k.removeprefix(pre): v for k, v in state.items()})
+    old_to_new = [(b, a) for a, b in _NEW_TO_OLD]
+    for st in prefixed:
+        yield st
+        yield _rename(st, _NEW_TO_OLD)
+        yield _rename(st, old_to_new)
 
 
 def build_dinov2(path, device):
@@ -245,12 +269,12 @@ def discover_detr_runs():
         test_acc = _read_json(os.path.join(run_dir, "metrics.json")).get("test", {}).get("accuracy")
         backbone = m.get("backbone", "mobilenetv4_conv_small").replace("mobilenetv4_conv_", "MobileNetV4 ").replace("_", " ")
         detail = (f"{backbone}, {'ImageNet-pretrained' if pretrained else 'trained from scratch'}, "
-                  f"{'weighted random sampling (class-balanced batches)' if weighted else 'plain random sampling'}")
+                  f"{'trained with a weighted random sampler (class-balanced batches)' if weighted else 'trained with a plain random sampler (natural class mix)'}")
         if test_acc is not None:
             detail += f". Test accuracy {test_acc * 100:.1f}%"
         stamp = run.removeprefix("galaxy_detr_")
         specs.append({
-            "key": f"detr_{stamp}", "name": f"GalaxyDETR ({'weighted' if weighted else 'random'} sampling)",
+            "key": f"detr_{stamp}", "name": f"GalaxyDETR ({'weighted random' if weighted else 'random'} sampler)",
             "run": run, "detail": detail, "color": DETR_COLORS[i % len(DETR_COLORS)], "detr": True,
             "candidates": candidates,
             "missing_hint": f"Weights not found. Put {run}.pth in model_weights/",
@@ -371,6 +395,7 @@ class Handler(BaseHTTPRequestHandler):
         body = json.dumps(obj).encode()
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
+        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -381,6 +406,7 @@ class Handler(BaseHTTPRequestHandler):
                 body = f.read()
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Cache-Control", "no-store")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
@@ -430,6 +456,17 @@ def main():
     ap.add_argument("--device", default=None, help="cpu, cuda or mps (default: best available)")
     ap.add_argument("--no-browser", action="store_true")
     args = ap.parse_args()
+
+    # On Windows, Python's HTTP server can bind a port another server is already using, and the OLD
+    # server keeps answering the browser. Refuse to start instead, so a stale demo can't hide changes.
+    import socket
+    with socket.socket() as probe:
+        probe.settimeout(0.5)
+        if probe.connect_ex(("127.0.0.1", args.port)) == 0:
+            print(f"Port {args.port} is already in use, probably by an older copy of this demo that's still running.\n"
+                  f"Close that terminal window (or end its python.exe in Task Manager), or run with --port {args.port + 1}.")
+            sys.exit(1)
+    ThreadingHTTPServer.allow_reuse_address = False
 
     device = args.device or ("cuda" if torch.cuda.is_available()
                              else "mps" if torch.backends.mps.is_available() else "cpu")

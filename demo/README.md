@@ -25,11 +25,11 @@ torchvision, transformers and timm, which `requirements_detr.txt` already instal
 | Baseline CNN | `model_weights/cnn_baseline.pth` |
 | VGG16 | `training/galaxy_classifier.pth` |
 | DINOv2 | `checkpoints/best_dinov2.pth` |
-| GalaxyDETR (scratch) | `model_weights/galaxy_detr_20261105_111705.pth`: MobileNetV4 from scratch, natural class mix, 82.8% test accuracy |
-| GalaxyDETR (pretrained) | `model_weights/galaxy_detr_20261105_134718.pth`: ImageNet-pretrained, class-balanced batches, 81.9% test accuracy |
+| GalaxyDETR (random sampler) | `model_weights/galaxy_detr_20261105_111705.pth`: ImageNet-pretrained MobileNetV4, plain random sampling, 82.8% test accuracy |
+| GalaxyDETR (weighted random sampler) | `model_weights/galaxy_detr_20261105_134718.pth`: ImageNet-pretrained MobileNetV4, weighted random sampling (class-balanced batches), 81.9% test accuracy |
 
-There's one GalaxyDETR column per run folder in `results/galaxy_detr_*/`. The column's label and test
-accuracy come from that run's `config.yaml` and `metrics.json`, and its weights from
+There's one GalaxyDETR column per run folder in `results/galaxy_detr_*/`. The column's label comes from the
+config saved inside the checkpoint, the test accuracy from the run's `metrics.json`, and its weights from
 `model_weights/<run_name>.pth`. A new training run appears automatically once its results folder and
 weights are both in place. `models/` and the run's own results folder also work as weight locations.
 

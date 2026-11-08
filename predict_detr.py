@@ -7,13 +7,16 @@
     python predict_detr.py --weights models/galaxy_detr.pth --input other_data.h5 --out predictions.csv
 
 One row per image: the most confident query's class and score, its box (cx, cy, w, h normalized
-to the 224x224 model input), and every query above --threshold (as JSON) for multi-galaxy images.
+to the model input: 256x256, or 224x224 for models trained with data.crop=224), and every query
+above --threshold (as JSON) for multi-galaxy images. The preprocessing (crop or not) is read from
+the checkpoint, so it always matches how that model was trained.
 
 In your own code:
     from Networks.galaxydetr import load_galaxydetr
     from datasets.galaxy10_detr_dataset import prepare_image
     model, class_names = load_galaxydetr('models/galaxy_detr.pth', device)
-    out = model(prepare_image(img)[None].to(device))   # img: PIL image or (H, W, 3) uint8 array
+    crop = model.config['data'].get('crop', 224)          # how this model was trained
+    out = model(prepare_image(img, crop)[None].to(device)) # img: PIL image or (H, W, 3) uint8 array
 """
 import argparse
 import csv
@@ -59,6 +62,8 @@ def main():
 
     device = get_device()
     model, class_names = load_galaxydetr(args.weights, device)
+    crop = model.config['data'].get('crop', 224)  # older checkpoints have no key -> their 224 crop
+    print('Input preprocessing:', 'whole 256x256 image' if not crop else f'center-crop {crop}x{crop}')
 
     rows, names, batch = [], [], []
 
@@ -83,7 +88,7 @@ def main():
 
     for name, img in iter_inputs(args.input):
         names.append(name)
-        batch.append(prepare_image(img))
+        batch.append(prepare_image(img, crop))
         if len(batch) == args.batch_size:
             flush()
     if batch:

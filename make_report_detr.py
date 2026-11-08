@@ -14,6 +14,7 @@ What it does:
 Override any config value if paths differ on this machine, e.g. data.h5_path=/scratch/Galaxy10_DECals.h5
 """
 import argparse
+import copy
 import json
 import os
 import re
@@ -74,6 +75,7 @@ def main():
         raise SystemExit(f"{args.weights} has no saved config (it predates self-contained checkpoints), "
                          "so its split and settings can't be reconstructed.")
     cfg = apply_overrides(ckpt["config"], args.overrides)
+    report_cfg = copy.deepcopy(cfg)  # the run's real settings, for the report (cfg is modified below)
     class_names, info = ckpt["class_names"], ckpt["info"]
     run_name = info.get("run_name") or os.path.splitext(os.path.basename(args.weights))[0]
     run_dir = args.out or os.path.join(cfg.get("output", {}).get("results_dir", "results"), run_name)
@@ -122,7 +124,7 @@ def main():
              "note": f"Report rebuilt with make_report_detr.py on {datetime.now():%Y-%m-%d %H:%M}. "
                      "Validation/test results were recomputed from the saved checkpoint"
                      + ("." if source else "; per-epoch losses were not available.")}
-    report = write_report(run_dir, run_name, cfg, class_names, history, metrics, setup, test_metrics)
+    report = write_report(run_dir, run_name, report_cfg, class_names, history, metrics, setup, test_metrics)
     print(f"Saved report: {report}")
 
 

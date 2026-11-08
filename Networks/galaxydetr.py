@@ -62,7 +62,8 @@ def build_model(cfg, num_classes):
 
 def load_galaxydetr(path, device='cpu'):
     """Rebuild a trained GalaxyDETR from a checkpoint saved by train_detr.py.
-    Returns (model in eval mode, class_names). No config file or ImageNet download needed."""
+    Returns (model in eval mode, class_names); the run's config is attached as model.config.
+    No config file or ImageNet download needed."""
     from utils.checkpoint import load_checkpoint
     ckpt = load_checkpoint(path, device)
     if ckpt['config'] is None:
@@ -72,6 +73,7 @@ def load_galaxydetr(path, device='cpu'):
     cfg['model']['pretrained'] = False  # the weights come from the checkpoint
     model = build_model(cfg, len(ckpt['class_names']))
     model.load_state_dict(ckpt['state_dict'])
+    model.config = cfg  # training config; e.g. preprocessing crop = model.config['data'].get('crop', 224)
     return model.to(device).eval(), ckpt['class_names']
 
 

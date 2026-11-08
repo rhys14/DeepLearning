@@ -14,10 +14,19 @@ Preprocessing follows vgg_train_and_val.ipynb. Split: stratified train / validat
 (config data.val_fraction, data.test_fraction; default 70/15/15). Validation picks the best
 checkpoint; the test set is only scored once, after training.
 
-Training-only augmentation (config `data.augment_flips`): random horizontal and vertical flips,
-each with probability 0.5. Galaxies have no preferred orientation, so a flipped galaxy is still
-the same class. The pseudo-box is computed AFTER the flip, so it always matches the image.
-The validation split is never augmented, so validation loss stays comparable between epochs.
+Input size (config `data.crop`): null = the whole 256x256 image (default); 224 = center-crop to
+224x224 like vgg_train_and_val.ipynb. Configs/checkpoints from before this option existed have no
+`crop` key and keep the old 224 crop, so older runs are still evaluated exactly as they were trained.
+
+Training-only augmentation, applied on the fly when a TRAINING image is loaded:
+  * data.augment_flips: random horizontal and vertical flip, each p = 0.5
+  * data.augment_rot90: random rotation by 0, 90, 180 or 270 degrees (each p = 0.25)
+Together they cover all 8 orientations of a square image. Both are exact pixel moves (no
+interpolation, no black corners). Galaxies have no preferred orientation, so the class is unchanged,
+and the pseudo-box is computed AFTER the transform, so it always matches the image.
+Augmented images are never stored and never added to any split: the split is fixed by index before
+training, and the validation/test datasets are built with train=False, so they always return their
+own original, untransformed images.
 
 Galaxy10 has a class label per image but NO bounding boxes. Every cutout is centered on its
 galaxy, so `galaxy_box` derives one box per image from the central light blob (pseudo-label):
@@ -41,12 +50,20 @@ CLASS_NAMES = ["disturbed", "merging", "round_smooth", "in_between_round_smooth"
                "barred_spiral", "unbarred_tight_spiral", "unbarred_loose_spiral",
                "edge_on_no_bulge", "edge_on_with_bulge"]  # label = index in this list (0-9)
 
-# Geometry steps are split from the tensor steps so the box is computed on exactly the
-# pixels the model sees (256 -> center-crop 224). Combined, this is the VGG notebook's pipeline.
-geometry = torchvision.transforms.Compose([
-    torchvision.transforms.Resize(256),
-    torchvision.transforms.CenterCrop(224),
-])
+LEGACY_CROP = 224  # what runs made before the `data.crop` option used
+
+
+def make_geometry(crop=None):
+    """Resize (shorter side) to 256, then optionally center-crop to `crop`. crop=None keeps the
+    whole image. Geometry is kept separate from the tensor steps so the pseudo-box is computed on
+    exactly the pixels the model sees."""
+    steps = [torchvision.transforms.Resize(256)]
+    if crop:
+        steps.append(torchvision.transforms.CenterCrop(crop))
+    return torchvision.transforms.Compose(steps)
+
+
+geometry = make_geometry(LEGACY_CROP)  # kept for backward compatibility
 to_tensor = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
@@ -63,11 +80,23 @@ def galaxy_box(img, nsigma=3.0, pad=0.10, fallback=0.3):
     comps, n = ndimage.label(mask)
     if n == 0:
         return [0.5, 0.5, fallback, fallback]
-    c = comps[H // 2, W // 2]
-    if c == 0:  # center pixel not above threshold: use the component nearest the center
-        ys, xs = np.nonzero(comps)
-        k = np.argmin((ys - H / 2) ** 2 + (xs - W / 2) ** 2)
-        c = comps[ys[k], xs[k]]
+    # Pick the galaxy's component with a rule that is symmetric under flips and 90-degree rotations,
+    # so an augmented image always gets the same (transformed) box as the original:
+    #   1. a component covering the central 2x2 pixels (largest if several), else
+    #   2. the component closest to the exact image center ((H-1)/2, (W-1)/2), ties -> largest.
+    sizes = np.bincount(comps.ravel(), minlength=n + 1)
+    cy, cx = (H - 1) / 2, (W - 1) / 2
+    central = comps[int(np.floor(cy)):int(np.ceil(cy)) + 1, int(np.floor(cx)):int(np.ceil(cx)) + 1]
+    labels_here = np.unique(central[central > 0])
+    if len(labels_here):
+        c = labels_here[np.argmax(sizes[labels_here])]
+    else:
+        yy, xx = np.indices((H, W))
+        dist = (yy - cy) ** 2 + (xx - cx) ** 2
+        ids = np.arange(1, n + 1)
+        dmin = np.asarray(ndimage.minimum(dist, comps, ids))
+        cand = ids[np.isclose(dmin, dmin.min())]
+        c = cand[np.argmax(sizes[cand])]
     ys, xs = np.nonzero(comps == c)
     x0, x1, y0, y1 = xs.min(), xs.max() + 1, ys.min(), ys.max() + 1
     w, h = (x1 - x0) * (1 + 2 * pad), (y1 - y0) * (1 + 2 * pad)
@@ -75,12 +104,14 @@ def galaxy_box(img, nsigma=3.0, pad=0.10, fallback=0.3):
     return [cx / W, cy / H, min(w / W, 1.0), min(h / H, 1.0)]
 
 
-def prepare_image(img):
+def prepare_image(img, crop=LEGACY_CROP):
     """Preprocess ONE image the same way as training/validation, for forward passes on new data.
-    img: PIL image or (H, W, 3) uint8 array. Returns a (3, 224, 224) float tensor."""
+    img: PIL image or (H, W, 3) uint8 array. Pass the crop the model was trained with:
+    crop = model.config["data"].get("crop", 224) for a model from load_galaxydetr().
+    Returns a (3, 256, 256) tensor for crop=None, (3, 224, 224) for crop=224."""
     if not isinstance(img, Image.Image):
         img = Image.fromarray(np.asarray(img))
-    return to_tensor(geometry(img.convert("RGB")))
+    return to_tensor(make_geometry(crop)(img.convert("RGB")))
 
 
 def random_flips(img):
@@ -89,6 +120,18 @@ def random_flips(img):
         img = img.transpose(Image.FLIP_LEFT_RIGHT)
     if torch.rand(1).item() < 0.5:
         img = img.transpose(Image.FLIP_TOP_BOTTOM)
+    return img
+
+
+def random_rot90(img):
+    """Random rotation by 0, 90, 180 or 270 degrees (exact pixel moves, no interpolation)."""
+    k = int(torch.randint(0, 4, (1,)).item())
+    if k == 1:
+        img = img.transpose(Image.ROTATE_90)
+    elif k == 2:
+        img = img.transpose(Image.ROTATE_180)
+    elif k == 3:
+        img = img.transpose(Image.ROTATE_270)
     return img
 
 
@@ -120,9 +163,14 @@ class Galaxy10DETRDataset(Dataset):
     Image source, in priority order: `images` (an in-RAM array), `npy_path` (memory-mapped lazily in
     each worker), else the .h5 at `fp` (opened lazily in each worker). Open file handles and memmaps
     are never pickled into DataLoader workers (see __getstate__), so workers never copy the images."""
-    def __init__(self, fp, indices=None, labels=None, npy_path=None, images=None, train=False):
+    def __init__(self, fp, indices=None, labels=None, npy_path=None, images=None, train=False,
+                 crop=LEGACY_CROP, flips=True, rot90=False):
+        """train=True enables augmentation (only ever set for the TRAINING split): `flips` and
+        `rot90` choose which transforms. crop: None = whole image, 224 = center-crop."""
         self.file_path, self.npy_path = fp, npy_path
         self.train = train
+        self.crop, self.flips, self.rot90 = crop, flips, rot90
+        self.geometry = make_geometry(crop)
         self.images = images
         self.file = None   # lazily opened h5py.File
         self.mm = None     # lazily opened np.memmap
@@ -154,9 +202,12 @@ class Galaxy10DETRDataset(Dataset):
 
     def __getitem__(self, idx):
         j = int(self.indices[idx])
-        img = geometry(Image.fromarray(self._raw_image(j)).convert("RGB"))
-        if self.train:
-            img = random_flips(img)
+        img = self.geometry(Image.fromarray(self._raw_image(j)).convert("RGB"))
+        if self.train:  # training split only; validation/test always get the original image
+            if self.flips:
+                img = random_flips(img)
+            if self.rot90:
+                img = random_rot90(img)
         target = {"boxes": torch.tensor([galaxy_box(img)], dtype=torch.float32),
                   "labels": torch.tensor([int(self.labels[j])])}
         return to_tensor(img), target
@@ -272,12 +323,17 @@ def build_dataloaders(cfg):
 
     common = dict(batch_size=cfg["training"]["batch_size"], num_workers=d["num_workers"], collate_fn=collate,
                   persistent_workers=d["num_workers"] > 0)
-    augment = d.get("augment_flips", True)
-    train_ds = Galaxy10DETRDataset(d["h5_path"], train_idx, labels, npy_path, images, train=augment)
-    val_ds = Galaxy10DETRDataset(d["h5_path"], val_idx, labels, npy_path, images)
+    crop = d.get("crop", LEGACY_CROP)  # missing key (older configs/checkpoints) -> the old 224 crop
+    flips, rot90 = d.get("augment_flips", True), d.get("augment_rot90", False)
+    # Only the training split is augmented. Validation and test are separate index sets built with
+    # train=False: they never see an augmented image, and no augmented image is ever added to them.
+    train_ds = Galaxy10DETRDataset(d["h5_path"], train_idx, labels, npy_path, images,
+                                   train=flips or rot90, crop=crop, flips=flips, rot90=rot90)
+    val_ds = Galaxy10DETRDataset(d["h5_path"], val_idx, labels, npy_path, images, train=False, crop=crop)
     test_loader = None
     if len(test_idx):
-        test_loader = DataLoader(Galaxy10DETRDataset(d["h5_path"], test_idx, labels, npy_path, images), **common)
+        test_ds = Galaxy10DETRDataset(d["h5_path"], test_idx, labels, npy_path, images, train=False, crop=crop)
+        test_loader = DataLoader(test_ds, **common)
     if d.get("sampler", "weighted") == "weighted":
         sampler = make_weighted_sampler(labels[train_idx], d.get("sampler_power", 1.0), cfg["seed"])
         train_loader = DataLoader(train_ds, sampler=sampler, **common)  # sampler replaces shuffle=True
