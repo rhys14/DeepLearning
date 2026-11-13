@@ -1,11 +1,10 @@
 
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader, random_split
 from pathlib import Path
 
 from Networks.galaxyDinoV2 import GalaxyDINOv2
-from datasets.galaxy10_dataset import Galaxy10Dataset
+from datasets.galaxy10_dataset import build_dataloaders
 
 
 # Device
@@ -13,10 +12,12 @@ device = torch.device(
     "cuda" if torch.cuda.is_available() else "cpu"
 )
 
-print(f"Using device: {device}")
+print(f"Using device: {device}", flush=True)
+
 
 # Model
 model = GalaxyDINOv2(num_classes=10).to(device)
+
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
@@ -30,44 +31,27 @@ optimizer = torch.optim.AdamW(
 epochs = 20
 batch_size = 32
 
-# Dataset
-dataset = Galaxy10Dataset("data/Galaxy10_DECals.h5")
 
-# 80/20 split
-train_size = int(0.8 * len(dataset))
-test_size = len(dataset) - train_size
-
-train_dataset, test_dataset = random_split(
-    dataset,
-    [train_size, test_size],
-    generator=torch.Generator().manual_seed(42)
+# Dataset - load all images into RAM once
+train_loader, test_loader = build_dataloaders(
+    fp="data/Galaxy10_DECals.h5",
+    batch_size=64,
+    num_workers=4,
+    in_memory=True
 )
 
-train_loader = DataLoader(
-    train_dataset,
-    batch_size=batch_size,
-    shuffle=True,
-    num_workers=0,
-    pin_memory=(device.type == "cuda")
-)
 
-test_loader = DataLoader(
-    test_dataset,
-    batch_size=batch_size,
-    shuffle=False,
-    num_workers=0,
-    pin_memory=(device.type == "cuda")
-)
-
-# Training
+# Checkpoint directory
 Path("checkpoints").mkdir(exist_ok=True)
 
 best_accuracy = 0.0
 
+
+# Training
 for epoch in range(epochs):
     model.train()
 
-    # Keep frozen backbone in eval mode
+    # Keep frozen DINOv2 backbone in eval mode
     model.model.dinov2.eval()
 
     running_loss = 0.0
@@ -76,10 +60,10 @@ for epoch in range(epochs):
 
     for batch_idx, (images, labels) in enumerate(train_loader):
 
-        images = images.to(device)
-        labels = labels.long().to(device)
+        images = images.to(device, non_blocking=True)
+        labels = labels.long().to(device, non_blocking=True)
 
-        optimizer.zero_grad()
+        optimizer.zero_grad(set_to_none=True)
 
         outputs = model(images)
 
@@ -99,7 +83,8 @@ for epoch in range(epochs):
             print(
                 f"Epoch [{epoch+1}/{epochs}] "
                 f"Batch [{batch_idx+1}/{len(train_loader)}] "
-                f"Loss: {loss.item():.4f}"
+                f"Loss: {loss.item():.4f}",
+                flush=True
             )
 
     train_loss = running_loss / total
@@ -115,8 +100,8 @@ for epoch in range(epochs):
     with torch.no_grad():
         for images, labels in test_loader:
 
-            images = images.to(device)
-            labels = labels.long().to(device)
+            images = images.to(device, non_blocking=True)
+            labels = labels.long().to(device, non_blocking=True)
 
             outputs = model(images)
             loss = criterion(outputs, labels)
@@ -135,7 +120,8 @@ for epoch in range(epochs):
         f"Train Loss: {train_loss:.4f} | "
         f"Train Acc: {train_accuracy:.2f}% | "
         f"Val Loss: {val_loss:.4f} | "
-        f"Val Acc: {val_accuracy:.2f}%"
+        f"Val Acc: {val_accuracy:.2f}%",
+        flush=True
     )
 
     # Save best model
@@ -147,10 +133,14 @@ for epoch in range(epochs):
             "checkpoints/best_dinov2.pth"
         )
 
-        print("Saved best DINOv2 model!")
+        print(
+            f"Saved best DINOv2 model! "
+            f"Validation accuracy: {best_accuracy:.2f}%",
+            flush=True
+        )
 
 print("Training complete!")
-
+print(f"Best validation accuracy: {best_accuracy:.2f}%")
 
 
 
