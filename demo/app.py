@@ -13,9 +13,9 @@ transformers and timm, which are already in requirements.txt / requirements_detr
 Weights it looks for (first match wins; a missing file just greys out that model's column):
     baseline CNN  model_weights/cnn_baseline.pth (or models/)
     VGG16         training/galaxy_classifier.pth
-    DINOv2        checkpoints/best_dinov2.pth
-    GalaxyDETR    one column per training run in results/galaxy_detr_*/, loading
-                  model_weights/<run_name>.pth (or the run's results folder, or models/)
+    ResNet-18     galaxy_resnet18/resnet18_galaxy10_76pct.pth
+    DINOv2        model_weights/best_dinov2.pth
+    GalaxyDETR    model_weights/galaxy_detr_20261108_141353.pth (set DETR_WEIGHTS to swap runs)
 """
 import argparse
 import base64
@@ -59,7 +59,15 @@ def to_canonical(img):
 # Baseline CNN and DINOv2 (Galaxy10Dataset): raw 256x256 pixels / 255, no normalization
 raw_256 = torchvision.transforms.ToTensor()
 
-# VGG notebook and GalaxyDETR (prepare_image): resize 256, center-crop 224, ImageNet normalization
+# GalaxyDETR runs with data.crop: null (prepare_image(img, crop=None)): the whole 256x256 image,
+# ImageNet normalization, no crop
+imagenet_256 = torchvision.transforms.Compose([
+    torchvision.transforms.Resize(256),
+    torchvision.transforms.ToTensor(),
+    torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+
+# VGG notebook, ResNet-18 and older GalaxyDETR runs: resize 256, center-crop 224, ImageNet normalization
 imagenet_224 = torchvision.transforms.Compose([
     torchvision.transforms.Resize(256),
     torchvision.transforms.CenterCrop(224),
@@ -100,6 +108,14 @@ class VGGGalaxyModel(nn.Module):
 
 def build_vgg(path, device):
     model = VGGGalaxyModel()
+    model.load_state_dict(_load_state(path, device))
+    return model
+
+
+def build_resnet18(path, device):
+    """Standard torchvision ResNet-18 with fc swapped for 10 classes, as in galaxy_resnet18/predict_galaxy.py."""
+    model = torchvision.models.resnet18(weights=None)  # weights come from the checkpoint
+    model.fc = nn.Linear(model.fc.in_features, len(CLASS_NAMES))
     model.load_state_dict(_load_state(path, device))
     return model
 
@@ -220,12 +236,17 @@ MODELS = [
      "candidates": ["training/galaxy_classifier.pth", "models/galaxy_classifier.pth",
                     "checkpoints/galaxy_classifier.pth"],
      "build": build_vgg, "transform": imagenet_224},
-    {"key": "dinov2", "name": "DINOv2", "detail": "dinov2-small backbone, frozen, with a linear head",
-     "candidates": ["checkpoints/best_dinov2.pth", "models/best_dinov2.pth"],
+    {"key": "resnet18", "name": "ResNet-18",
+     "detail": "ImageNet-pretrained, layer3, layer4 and a new 10-class head fine-tuned. Test accuracy 76%",
+     "candidates": ["galaxy_resnet18/resnet18_galaxy10_76pct.pth", "model_weights/resnet18_galaxy10_76pct.pth",
+                    "galaxy_resnet18/resnet18_galaxy_finetuned.pth"],
+     "build": build_resnet18, "transform": imagenet_224},
+    {"key": "dinov2", "name": "DINOv2", "detail": "dinov2-small backbone, last 6 transformer blocks and a linear head fine-tuned",
+     "candidates": ["model_weights/best_dinov2.pth", "checkpoints/best_dinov2.pth", "models/best_dinov2.pth"],
      "build": build_dinov2, "transform": raw_256},
-    # GalaxyDETR columns are added by discover_detr_runs(), one per results/galaxy_detr_* folder
+    # the GalaxyDETR column is added by detr_spec()
 ]
-FIXED_COLORS = {"baseline": "#7DB4E8", "vgg": "#E8B860", "dinov2": "#B59AF2"}
+FIXED_COLORS = {"baseline": "#7DB4E8", "vgg": "#E8B860", "resnet18": "#E58FD6", "dinov2": "#B59AF2"}
 DETR_COLORS = ["#62D2B0", "#B3DB6A", "#F08FA8", "#E8E1C8"]
 
 
@@ -237,62 +258,35 @@ def _read_json(path):
         return {}
 
 
-def discover_detr_runs():
-    """One GalaxyDETR model per training run in results/. Weights are looked for in the run's own
-    results folder first, then where train_detr.py saves them (models/<run_name>.pth)."""
-    import yaml
-    runs = sorted(d for d in glob.glob(os.path.join(ROOT, "results", "galaxy_detr_*")) if os.path.isdir(d))
-    specs = []
-    for i, run_dir in enumerate(runs):
-        run = os.path.basename(run_dir)
-        cfg_path = os.path.join(run_dir, "config.yaml")
-        candidates = [f"model_weights/{run}.pth", f"results/{run}/{run}.pth", f"glob:results/{run}/*.pth",
-                      f"models/{run}.pth", f"checkpoints/{run}.pth"]
-        # The config stored inside the checkpoint is what the run actually trained with, so it's used for
-        # the label when the weights are here; results/<run>/config.yaml is only the fallback.
-        cfg = None
-        wpath = find_weights({"candidates": candidates})
-        if wpath:
-            try:
-                cfg = torch.load(wpath, map_location="cpu", weights_only=True).get("config")
-            except Exception:
-                cfg = None
-        if cfg is None:
-            try:
-                with open(cfg_path) as f:
-                    cfg = yaml.safe_load(f) or {}
-            except Exception:
-                cfg = {}
-        m, d = cfg.get("model", {}), cfg.get("data", {})
-        pretrained = bool(m.get("pretrained"))
-        weighted = d.get("sampler") == "weighted"
-        test_acc = _read_json(os.path.join(run_dir, "metrics.json")).get("test", {}).get("accuracy")
-        backbone = m.get("backbone", "mobilenetv4_conv_small").replace("mobilenetv4_conv_", "MobileNetV4 ").replace("_", " ")
-        detail = (f"{backbone}, {'ImageNet-pretrained' if pretrained else 'trained from scratch'}, "
-                  f"{'trained with a weighted random sampler (class-balanced batches)' if weighted else 'trained with a plain random sampler (natural class mix)'}")
-        if test_acc is not None:
-            detail += f". Test accuracy {test_acc * 100:.1f}%"
-        stamp = run.removeprefix("galaxy_detr_")
-        specs.append({
-            "key": f"detr_{stamp}", "name": f"GalaxyDETR ({'weighted random' if weighted else 'random'} sampler)",
-            "run": run, "detail": detail, "color": DETR_COLORS[i % len(DETR_COLORS)], "detr": True,
-            "candidates": candidates,
-            "missing_hint": f"Weights not found. Put {run}.pth in model_weights/",
-            "build": lambda path, device, c=cfg_path: build_detr(path, device, c),
-            "transform": imagenet_224,
-        })
-    # two runs with the same short name (e.g. both weighted): tell them apart by start time
-    names = [s["name"] for s in specs]
-    for s in specs:
-        if names.count(s["name"]) > 1:
-            t = s["run"].removeprefix("galaxy_detr_")
-            s["name"] = s["name"][:-1] + f", {t[9:11]}:{t[11:13]})"
-    if not specs:  # no results folders: fall back to the latest single checkpoint
-        specs.append({"key": "detr", "name": "GalaxyDETR", "detail": "MobileNetV4 backbone, transformer encoder-decoder",
-                      "color": DETR_COLORS[0], "detr": True,
-                      "candidates": ["model_weights/galaxy_detr.pth", "models/galaxy_detr.pth", "glob:models/galaxy_detr_*.pth"],
-                      "build": build_detr, "transform": imagenet_224})
-    return specs
+DETR_WEIGHTS = "model_weights/galaxy_detr_20261108_141353.pth"  # the GalaxyDETR shown in the demo
+
+
+def detr_spec():
+    """The demo's GalaxyDETR column. Its label, preprocessing and box mapping come from the config
+    saved inside the checkpoint, so they always match how the run was trained."""
+    path = os.path.join(ROOT, DETR_WEIGHTS)
+    cfg = {}
+    if os.path.isfile(path):
+        try:
+            cfg = torch.load(path, map_location="cpu", weights_only=True).get("config") or {}
+        except Exception:
+            cfg = {}
+    m, d = cfg.get("model", {}), cfg.get("data", {})
+    crop = d.get("crop", 224)  # older configs have no key and used the 224 crop
+    weighted = d.get("sampler") == "weighted"
+    backbone = m.get("backbone", "mobilenetv4_conv_small").replace("mobilenetv4_conv_", "MobileNetV4 ").replace("_", " ")
+    run = os.path.splitext(os.path.basename(DETR_WEIGHTS))[0]
+    detail = (f"{backbone}, {'ImageNet-pretrained' if m.get('pretrained') else 'trained from scratch'}, "
+              f"{'weighted random sampler' if weighted else 'random sampler'}, "
+              f"{'whole 256x256 image' if not crop else f'{crop}x{crop} center crop'}")
+    test_acc = _read_json(os.path.join(ROOT, "results", run, "metrics.json")).get("test", {}).get("accuracy")
+    if test_acc is not None:
+        detail += f". Test accuracy {test_acc * 100:.1f}%"
+    return {"key": "detr", "name": "GalaxyDETR", "detail": detail, "color": DETR_COLORS[0], "detr": True,
+            "crop": crop, "candidates": [DETR_WEIGHTS],
+            "missing_hint": f"Weights not found. Put {os.path.basename(DETR_WEIGHTS)} in model_weights/",
+            "build": lambda p, dev: build_detr(p, dev, os.path.join(ROOT, "results", run, "config.yaml")),
+            "transform": imagenet_256 if not crop else imagenet_224}
 
 
 def find_weights(spec):
@@ -304,7 +298,7 @@ def find_weights(spec):
 
 
 def load_models(device):
-    MODELS.extend(discover_detr_runs())
+    MODELS.append(detr_spec())
     for spec in MODELS:
         spec.setdefault("color", FIXED_COLORS.get(spec["key"], "#E6ECF3"))
         spec["path"] = find_weights(spec)
@@ -354,9 +348,11 @@ def run_all(img, device):
             q = prob[:, :-1].max(-1).values.argmax().item()
             p_obj = 1 - prob[q, -1].item()
             probs = (prob[q, :-1] / prob[q, :-1].sum()).tolist()
-            cx, cy, w, h = out["pred_boxes"][0, q].tolist()       # normalized to the 224 crop
-            # map from the 224x224 center crop back to the 256x256 image shown on the page
-            box = [(16 + (cx - w / 2) * 224) / 256, (16 + (cy - h / 2) * 224) / 256, w * 224 / 256, h * 224 / 256]
+            cx, cy, w, h = out["pred_boxes"][0, q].tolist()       # normalized to the model's input
+            crop = spec.get("crop") or 256
+            off = (256 - crop) / 2                                 # center-crop offset in the 256 image
+            # map back to the 256x256 image shown on the page (identity for whole-image runs)
+            box = [(off + (cx - w / 2) * crop) / 256, (off + (cy - h / 2) * crop) / 256, w * crop / 256, h * crop / 256]
             r.update(box=box, objectness=p_obj, query=q)
         else:
             probs = out[0].softmax(-1).tolist()
@@ -379,6 +375,44 @@ def random_sample():
     with h5py.File(H5_PATH, "r") as f:
         i = random.randrange(len(f["ans"]))
         return Image.fromarray(f["images"][i]), int(f["ans"][i]), i
+
+
+# ---------------------------------------------------------------------------------------------
+# Preloaded demo images (Galaxy_Images_For_Demo/): run through every model once at startup, so
+# clicking one in the sidebar shows its results instantly
+# ---------------------------------------------------------------------------------------------
+PRESET_DIR = os.path.join(ROOT, "Galaxy_Images_For_Demo")
+PRESET_EXTS = (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff")
+PRESETS = {}  # id -> {"name", "path", "thumb": jpeg bytes, "result": run_all output}
+
+
+def preset_name(filename):
+    """File name -> sidebar label: drop the extension, copy suffixes like ' (1)' and underscores."""
+    import re
+    stem = os.path.splitext(filename)[0]
+    stem = re.sub(r"\s*\(\d+\)$", "", stem).replace("_", " ").strip()
+    return stem or filename
+
+
+def load_presets(device):
+    if not os.path.isdir(PRESET_DIR):
+        print("  (no Galaxy_Images_For_Demo folder, so no preloaded images)")
+        return
+    files = sorted(f for f in os.listdir(PRESET_DIR) if f.lower().endswith(PRESET_EXTS))
+    for i, f in enumerate(files):
+        path = os.path.join(PRESET_DIR, f)
+        try:
+            img = Image.open(path)
+            img.load()
+            thumb = to_canonical(img).resize((96, 96), Image.LANCZOS)
+            buf = io.BytesIO()
+            thumb.save(buf, format="JPEG", quality=88)
+            res = run_all(img, device)
+            res["label"] = preset_name(f)
+            PRESETS[str(i)] = {"name": preset_name(f), "file": f, "thumb": buf.getvalue(), "result": res}
+        except Exception as e:
+            print(f"  skipped {f}: {type(e).__name__}: {e}")
+    print(f"  preloaded {len(PRESETS)} demo image(s) from Galaxy_Images_For_Demo/")
 
 
 # ---------------------------------------------------------------------------------------------
@@ -416,6 +450,22 @@ class Handler(BaseHTTPRequestHandler):
                                         "color": s["color"], "loaded": s["model"] is not None,
                                         "message": s["error"]}
                                        for s in MODELS]})
+        elif self.path == "/api/presets":
+            self.send_json({"presets": [{"id": k, "name": v["name"], "file": v["file"]} for k, v in PRESETS.items()]})
+        elif self.path.startswith("/api/presets/"):
+            parts = self.path.split("/")  # ["", "api", "presets", id] or [..., id, "thumb"]
+            p = PRESETS.get(parts[3]) if len(parts) > 3 else None
+            if p is None:
+                return self.send_json({"error": "No such demo image"}, 404)
+            if len(parts) > 4 and parts[4] == "thumb":
+                self.send_response(200)
+                self.send_header("Content-Type", "image/jpeg")
+                self.send_header("Content-Length", str(len(p["thumb"])))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(p["thumb"])
+            else:
+                self.send_json(p["result"])
         elif self.path.startswith("/api/sample"):
             if not os.path.isfile(H5_PATH):
                 return self.send_json({"error": "No dataset at data/Galaxy10_DECals.h5"}, 404)
@@ -478,6 +528,7 @@ def main():
     print(f"Python {sys.version.split()[0]}, {versions}")
     print(f"Loading models on {device} from {ROOT}")
     load_models(device)
+    load_presets(device)
     Handler.device = device
 
     url = f"http://localhost:{args.port}"
